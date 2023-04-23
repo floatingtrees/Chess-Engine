@@ -1,4 +1,9 @@
 def in_check_from_square(position_swapped, search_square, white, in_check, possibly_pinned_pieces, row, pinned):
+	# position_swapped finds the piece on a square, search square is the square that's being looked at
+	# white = True means that it's white to move; otherwise it's black
+	# in_check is a list that holds the square of the piece that's checking the king 
+	# row = True means that the program is searching on a row or column; otherwise it's searching a diagonal
+	# possibly pinned contains a piece that might be pinned; if pinned is True, possibly pinned gets appended to pinned
 	if row and white: # no issues with this bloc
 		piece_check = "r"
 		piece_safe = 'b'
@@ -58,7 +63,7 @@ def pins_and_checks_search(position, position_swapped, white):
 	else:
 		king_location_y, king_location_x = position["k0"]
 
-
+	# checks for each row and diagonal
 	for i in range(1, 7): # + 0
 		if king_location_y + i > 7:
 			break
@@ -188,6 +193,7 @@ def pawn_capture_search(legal_moves, original_square, capture_square): # tuple, 
 
 def legal_move_search(position, position_swapped, white, white_pieces, black_pieces):
 	pinned_pieces, in_check = pins_and_checks_search(position, position_swapped, white)
+	# code below is currently a work in progres
 '''	legal_moves = []
 	if white: 
 		for piece in position:
@@ -213,7 +219,7 @@ def legal_move_search(position, position_swapped, white, white_pieces, black_pie
 
 if __name__ == "__main__":
 	white = True
-	# goes row (8-1), column (a-h) # q0 is pinning pawn to king, "q0":(4, 7)
+	# goes row (8-1), column (a-h) 
 	start_position = {"r0" : (0, 0), "n0" : (0, 1), "b0" : (0, 2), "q0":(0, 3), "k0" : (0, 4), "b1" : (0, 5), "n2": (0, 6), "r2":(0, 7), 
 			"p0": (1, 0), "p1": (1, 1), "p2":(1, 2), "p3":(1, 3), "p4":(1, 4), "p5":(1, 5), "p6": (1, 6), "p7":(1, 7),
 			"P0":(6, 0), "P1":(6, 1), "P2":(6, 2), "P3":(6, 3), "P4":(6, 4), "P5":(6, 5), "P6":(6, 6), "P7":(6, 7),
