@@ -1,9 +1,8 @@
-	# position_swapped finds the piece on a square, search square is the square that's being looked at
-	# white = True means that it's white to move; otherwise it's black
-	# in_check is a list that holds the square of the piece that's checking the king 
-	# row = True means that the program is searching on a row or column; otherwise it's searching a diagonal
-	# possibly pinned contains a piece that might be pinned; if pinned is True, possibly pinned gets appended to pinned
-	if row and white: # no issues with this bloc
+# position_swapped finds the piece on a square, search square is the square that's being looked at
+# white = True means that it's white to move; otherwise it's black
+# in_check is a list that holds the square of the piece that's checking the king 
+# row = True means that the program is searching on a row or column; otherwise it's searching a diagonal
+# possibly pinned contains a piece that might be pinned; if pinned is True, possibly pinned gets appended to pinned
 def in_check_from_square(position_swapped, search_square, white, in_check, possibly_pinned_pieces, row, pinned):
 	if row and white: # no issues with this bloc
 		piece_check = "r"
@@ -254,6 +253,20 @@ def w_pawn_legal_moves_search(legal_moves, position, position_swapped, piece, en
 	return legal_moves
 
 
+
+def w_knight_legal_moves_search(legal_moves, position, position_swapped, piece, en_passant_maybe, previous_move): 
+	knight_moves = [[1, 2], [2, 1], [-1, 2], [-2, 1], [-1, -2], [-2, -1], [1, -2], [2, -1]]
+	location = position[piece]
+	for i in knight_moves:
+		move_y = location[0] + i[0]
+		move_x = location[1] + i[1]
+		if move_x >= 0 and move_x <= 7 and move_y >= 0 and move_y <= 7:
+			try:
+				position_swapped[()] 
+
+
+
+
 def legal_move_search(position, position_swapped, white, previous_move):
 	pinned_pieces, in_check = pins_and_checks_search(position, position_swapped, white)
 	legal_moves = []
@@ -265,6 +278,8 @@ def legal_move_search(position, position_swapped, white, previous_move):
 		for piece in position:
 			if piece[0] == "P":
 				legal_moves = w_pawn_legal_moves_search(legal_moves, position, position_swapped, piece, en_passant_maybe, previous_move)
+			if piece[0] == "N":
+				legal_moves = w_knight_legal_moves_search(legal_moves, position, position_swapped, piece, en_passant_maybe, previous_move)
 
 
 
@@ -284,36 +299,3 @@ if __name__ == "__main__":
 	position_swapped = dict([(value, key) for key, value in start_position.items()])
 	legal_moves = legal_move_search(start_position, position_swapped, white, previous_move)
 	print(legal_moves)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	"""((0, 0, "r"), (0, 1, "n"), (0, 2, "b"), (0, 3, "q"), (0, 4, "k"), (0, 5, "b"), (0, 6, "n"), (0, 7, "r"), 
-			(1, 0, "p"), (1, 1, "p"), (1, 2, "p"), (1, 3, "p"), (1, 4, "p"), (1, 5, "p"), (1, 6, "p"), (1, 7, "p"),
-			(6, 0, "P"), (6, 1, "P"), (6, 2, "P"), (6, 3, "P"), (6, 4, "P"), (6, 5, "P"), (6, 6, "P"), (6, 7, "P"),
-			(7, 0, "R"), (7, 1, "N"), (7, 2, "B"), (7, 3, "K"), (7, 4, "Q"), (0, 5, "B"), (0, 6, "N"), (0, 7, "R"), 
-			)
-
-			{"piece0": (0, 0, "r"), "piece1": (0, 1, "n"), "piece2": (0, 2, "b"), "piece3": (0, 3, "q"), 
-		"piece4": (0, 4, "k"), "piece5": (0, 5, "b"), "piece6": (0, 6, "n"), "piece7": (0, 7, "r"), 
-		"piece8": (1, 0, "p"), "piece9": (1, 1, "p"), "piece10": (1, 2, "p"), "piece11": (1, 3, "p"), 
-		"piece12": (1, 4, "p"), "piece13": (1, 5, "p"), "piece14": (1, 6, "p"), "piece15": (1, 7, "P"), 
-
-		"piece16": (6, 0, "R"), "piece17": (6, 1, "N"), "piece18": (6, 2, "B"), "piece19": (6, 3, "Q"), 
-		"piece20": (6, 4, "K"), "piece21": (6, 5, "B"), "piece22": (6, 6, "N"), "piece23": (6, 7, "R"), 
-		"piece24": (7, 0, "P"), "piece25": (7, 1, "P"), "piece26": (7, 2, "P"), "piece27": (7, 3, "P"), 
-		"piece28": (7, 4, "P"), "piece29": (7, 5, "P"), "piece30": (7, 6, "P"), "piece31": (7, 7, "P"), """
