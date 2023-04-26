@@ -124,7 +124,6 @@ def pins_and_checks_search(position, position_swapped, white, king_location_y, k
 			search_square_pawn = (king_location_y - 1, king_location_x + i)
 			print(search_square_pawn)
 			if search_square_pawn in position_swapped:
-				print("SECOND", search_square_pawn)
 				if position_swapped[search_square_pawn][0] == 'p':
 					
 					in_check.append((search_square_pawn, "p"))
@@ -143,17 +142,20 @@ def fancy_french_move(legal_moves, original_square, previous_move, white): # Mov
 	if previous_move[1][1] == original_square[1] + 1:
 		if white:
 			legal_moves.append(("P", original_square, (original_square[0]-1, original_square[1] + 1)))
+			return legal_moves
 		else:
-			legal_moves.append(("p", original_square, (original_square[0]+1, original_square[1] - 1)))
+			legal_moves.append(("p", original_square, (original_square[0]+1, original_square[1] + 1)))
+			return legal_moves
 
 	elif previous_move[1][1] == original_square[1] - 1:
 		if white:
 			legal_moves.append(("P", original_square, (original_square[0]-1, original_square[1] - 1))) #Squares are (y, x)
+			return legal_moves
 		else:
 			legal_moves.append(("p", original_square, (original_square[0]+1, original_square[1] - 1)))
+			return legal_moves
 	return legal_moves
-
-
+	
 
 def w_pawn_capture_search(legal_moves, original_square, capture_square): # list, tuple, tuple
 	if capture_square in position_swapped:
@@ -205,14 +207,12 @@ def b_pawn_legal_moves_search(legal_moves, position, position_swapped, piece, en
 	if en_passant_maybe and piece_current_y == 4:
 		legal_moves = fancy_french_move(legal_moves, piece_location, previous_move, white = False)
 	for i in range(1, forward_squares):
-		try:
-			movement_square_occupier = position_swapped[(piece_current_y - i, piece_current_x)][0]
-		except KeyError:
-			legal_moves.append((piece[0], (piece_current_y, piece_current_x), (piece_current_y - i, piece_current_x)))
+		if (piece_current_y + i, piece_current_x) not in position_swapped:
+			legal_moves.append(("p", piece_location, (piece_current_y + i, piece_current_x)))
 		else:
 			break
 	for i in range(-1, 2, 2):
-		legal_moves = w_pawn_capture_search(legal_moves, piece_location, (piece_current_y - 1, piece_current_x + i))
+		legal_moves = b_pawn_capture_search(legal_moves, piece_location, (piece_current_y + 1, piece_current_x + i))
 	return legal_moves
 
 
@@ -413,23 +413,24 @@ def legal_move_search(position, position_swapped, white, previous_move): # If in
 			elif piece[0] == "K":
 				legal_moves = king_moves_search(legal_moves, position, position_swapped, piece, white)
 	else: # elif black
-		if previous_move[0] == "P" and previous_move[1][0] == 6 and previous_move[2][0] == [4]:
+		if previous_move[0] == "P" and previous_move[1][0] == 6 and previous_move[2][0] == 4:
 			en_passant_maybe = True
+
 		else:
 			en_passant_maybe = False
 
 		for piece in position:
-			if piece[0] == "P":
+			if piece[0] == "p":
 				legal_moves = b_pawn_legal_moves_search(legal_moves, position, position_swapped, piece, en_passant_maybe, previous_move)
-			elif piece[0] == "N":
+			elif piece[0] == "n":
 				legal_moves = knight_legal_moves_search(legal_moves, position, position_swapped, piece, white)
-			elif piece[0] == "B":
+			elif piece[0] == "b":
 				legal_moves = bishop_moves_search(legal_moves, position, position_swapped, piece, white) # Captures not working
-			elif piece[0] == "R":
+			elif piece[0] == "r":
 				legal_moves = rook_moves_search(legal_moves, position, position_swapped, piece, white)
-			elif piece[0] == "Q":
+			elif piece[0] == "q":
 				legal_moves = queen_moves_search(legal_moves, position, position_swapped, piece, white)
-			elif piece[0] == "K":
+			elif piece[0] == "k":
 				legal_moves = king_moves_search(legal_moves, position, position_swapped, piece, white)
 
 
@@ -440,18 +441,18 @@ def legal_move_search(position, position_swapped, white, previous_move): # If in
 
 
 if __name__ == "__main__":
-	white = True
+	white = False
 	# goes row (8-1), column (a-h) # q0 is pinning pawn to king, "q0":(4, 7)
 	start_position = {"r0" : (0, 0), "n0" : (0, 1), "b0" : (0, 2), "q0":(0, 3), "k0" : (0, 4), "b1" : (0, 5), "n2": (0, 6), "r2":(0, 7), 
 			"p0": (1, 0), "p1": (1, 1), "p2":(1, 2), "p3":(1, 3), "p4":(1, 4), "p5":(1, 5), "p6": (1, 6), "p7":(1, 7),
 			"P0":(6, 0), "P1":(6, 1), "P2":(6, 2), "P3":(6, 3), "P4":(6, 4), "P5":(6, 5), "P6":(6, 6), "P7":(6, 7),
 			"R0":(7, 0), "N0":(7, 1), "B0":(7, 2), "Q0":(7, 3), "K0":(7, 4), "B1":(7, 5), "N1":(7, 6), "R1":(7, 7)}
-	previous_move = ("p", (1, 0), (3, 1))
+	previous_move = ("P", (6, 4), (4, 4))
 	position_swapped = dict([(value, key) for key, value in start_position.items()])
 	legal_moves = legal_move_search(start_position, position_swapped, white, previous_move)
 
 	# testing code below
-	search_pieces = ["K"]
+	search_pieces = ["p"]
 	printed_list = []
 	for i in legal_moves:
 		for j in search_pieces:
