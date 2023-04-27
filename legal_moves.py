@@ -112,7 +112,7 @@ def pins_and_checks_search(position, position_swapped, white, king_location_y, k
 			in_check, stop_searching_row, possibly_pinned_pieces, pinned = in_check_from_square(position_swapped, search_square, white, 
 																			in_check, possibly_pinned_pieces, row, pinned)
 			if pinned:
-				pinned_pieces.append((possibly_pinned_pieces, search_square))
+				pinned_pieces.append((possibly_pinned_pieces[0], search_square))
 				pinned = False
 				break
 			if stop_searching_row:
@@ -407,7 +407,7 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 
 			if castling_queenside:
 				legal_moves.append("O-O-O", (7, 4), (7, 2))
-			if castling_kingside and white:
+			if castling_kingside:
 				legal_moves.append("O-O", (7, 4), (7, 6))
 
 
@@ -433,9 +433,9 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 				en_passant_maybe = False
 
 
-			if castling_kingside and black:
+			if castling_kingside:
 				legal_moves.append("o-o", (0, 4), (0, 6))
-			if castling_queenside and black:
+			if castling_queenside:
 				legal_moves.append("o-o-o", (0, 4), (0, 2))
 
 
@@ -458,23 +458,25 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 	if len(in_check) == 1:
 		square_distance = (in_check[0][0] - king_location_y, in_check[0][1] - king_location_x)
 
-		if square_distance in knight_moves:
+		checking_piece = in_check[2]
+
+		if checking_piece == "N":
 			for move in legal_moves:
 				if move[0] == "K":
 					forced_moves.append(move)
-				elif move[2] == in_check[0]
+				elif move[2] == in_check[0]:
+					forced_moves.append(move)
 
-		if square_distance // max(square_distance) in rook_moves:
+		elif checking_piece == "B":
 
-		if square_distance // max(square_distance) in bishop_moves:
+		elif checking_piece == "N":
 
-		else;
+		elif checking_piece == "P":
+
+		else:
 			print("Error")
 
 
-		for i in legal_moves:
-			for j in square_distance:
-				landing_square = 
 
 
 	
