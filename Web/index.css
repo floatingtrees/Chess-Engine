@@ -1,0 +1,31 @@
+body {
+	margin: 0;
+	padding: 10px;
+	font-family: Arial, Helvetica;
+	min-width: 400px;
+	min-height: 500px;
+}
+input {
+	padding: 10px;
+	width: 100%;
+	box-sizing: border-box;
+	border: 1px solid #5f9341;
+	background: white;
+	margin-bottom: 4px;
+}
+button {
+	background: #5f9341;
+	color: white;
+	padding: 10px 20px;
+	font-weight: bold;
+	border: 1px solid #5f9341;
+}
+#gameCanvas {
+    position: relative;
+    top: 0px;
+    left: 50%;
+    transform: translate(-200px, 0px);
+}
+.button-center {
+	text-align: center;
+}
