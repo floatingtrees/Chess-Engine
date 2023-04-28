@@ -38,9 +38,11 @@ def in_check_from_square(position_swapped, search_square, white, in_check, possi
 	elif not row and white:
 		piece_check = "b"
 		piece_safe = 'r'
+	else:
+		raise RuntimeError("piece_check and piece_safe were not able to be defined with row: %s and white: %s"%(row, white))
 	# Color is no longer used past this point (in this function ofc)
 
-	stop_searching_row = False 
+	stop_searching_row = False
 	try:
 		piece = position_swapped[search_square]
 	except KeyError: # Exceptions are around the same speed as if key in dict
@@ -70,7 +72,7 @@ def in_check_from_square(position_swapped, search_square, white, in_check, possi
 				possibly_pinned_pieces.append(piece)
 		if len(possibly_pinned_pieces) > 1:
 			stop_searching_row = True
-	return in_check, stop_searching_row, possibly_pinned_pieces, pinned # 
+	return in_check, stop_searching_row, possibly_pinned_pieces, pinned #
 
 
 def knight_checks_search(in_check, position_swapped, king_location_y, king_location_x, white):
@@ -79,7 +81,7 @@ def knight_checks_search(in_check, position_swapped, king_location_y, king_locat
 		try:
 			piece = position_swapped[king_location_y + i[0], king_location_x + i[1]][0]
 		except KeyError:
-			pass 
+			pass
 		else:
 			if white:
 				if piece == "n":
@@ -106,9 +108,9 @@ def pins_and_checks_search(position, position_swapped, white, king_location_y, k
 		for move_length in range(1, 7): # + 0
 			move_y = king_location_y + directions[0] * move_length
 			move_x = king_location_x + directions[1] * move_length
-			if move_x >= 0 and move_x <= 7 and move_y >= 0 and move_y <= 7:
+			if 0 <= move_x <= 7 and 0 <= move_y <= 7:
 				search_square = (move_y, move_x) # row_search
-				in_check, stop_searching_row, possibly_pinned_pieces, pinned = in_check_from_square(position_swapped, search_square, white, 
+				in_check, stop_searching_row, possibly_pinned_pieces, pinned = in_check_from_square(position_swapped, search_square, white,
 																				in_check, possibly_pinned_pieces, row, pinned)
 				if pinned:
 					pinned_pieces.append((possibly_pinned_pieces[0], search_square))
@@ -133,7 +135,7 @@ def pins_and_checks_search(position, position_swapped, white, king_location_y, k
 				in_check.append((search_square, "P"))
 
 	return pinned_pieces, in_check
-	
+
 
 def fancy_french_move(legal_moves, original_square, previous_move, white): # Moves are (piece, (prev_y, prev_x), (current_y, current_x))
 	# works for all colors
@@ -154,7 +156,7 @@ def fancy_french_move(legal_moves, original_square, previous_move, white): # Mov
 			legal_moves.append(("p", original_square, (original_square[0]+1, original_square[1] - 1)))
 			return legal_moves
 	return legal_moves
-	
+
 
 def w_pawn_capture_search(legal_moves, original_square, capture_square): # list, tuple, tuple
 	if capture_square in position_swapped:
@@ -248,7 +250,7 @@ def bishop_moves_search(legal_moves, position, position_swapped, piece, white):
 	else:
 		piece_type = "b"
 
-	
+
 	location = position[piece]
 	location_y = location[0]
 	location_x = location[1]
@@ -264,13 +266,13 @@ def bishop_moves_search(legal_moves, position, position_swapped, piece, white):
 						if position_swapped[(move_y, move_x)][0] in white_pieces:
 							break
 						else:
-							legal_moves.append((piece_type, location, (move_y, move_x))) 
+							legal_moves.append((piece_type, location, (move_y, move_x)))
 							break
 					else:
 						if position_swapped[(move_y, move_x)][0] in black_pieces:
 							break
 						else:
-							legal_moves.append((piece_type, location, (move_y, move_x))) 
+							legal_moves.append((piece_type, location, (move_y, move_x)))
 							break
 			else:
 				break
@@ -297,13 +299,13 @@ def rook_moves_search(legal_moves, position, position_swapped, piece, white):
 						if position_swapped[(move_y, move_x)][0] in white_pieces:
 							break
 						else:
-							legal_moves.append((piece_type, location, (move_y, move_x))) 
+							legal_moves.append((piece_type, location, (move_y, move_x)))
 							break
 					else:
 						if position_swapped[(move_y, move_x)][0] in black_pieces:
 							break
 						else:
-							legal_moves.append((piece_type, location, (move_y, move_x))) 
+							legal_moves.append((piece_type, location, (move_y, move_x)))
 							break
 			else:
 				break
@@ -322,7 +324,7 @@ def queen_moves_search(legal_moves, position, position_swapped, piece, white):
 		for move_length in range(1, 8):
 			move_y = location_y + direction[0] * move_length
 			move_x = location_x + direction[1] * move_length
-			if move_x >= 0 and move_x <= 7 and move_y >= 0 and move_y <= 7: # Use or because it's cheaper to eval
+			if 0 <= move_x <= 7 and 0 <= move_y <= 7: # Use or because it's cheaper to eval
 				if (move_y, move_x) not in position_swapped:
 					legal_moves.append((piece_type, location, (move_y, move_x)))
 				else:
@@ -330,13 +332,13 @@ def queen_moves_search(legal_moves, position, position_swapped, piece, white):
 						if position_swapped[(move_y, move_x)][0] in white_pieces:
 							break
 						else:
-							legal_moves.append((piece_type, location, (move_y, move_x))) 
+							legal_moves.append((piece_type, location, (move_y, move_x)))
 							break
 					else:
 						if position_swapped[(move_y, move_x)][0] in black_pieces:
 							break
 						else:
-							legal_moves.append((piece_type, location, (move_y, move_x))) 
+							legal_moves.append((piece_type, location, (move_y, move_x)))
 							break
 			else:
 				break
@@ -352,7 +354,7 @@ def king_moves_search(legal_moves, position, position_swapped, piece, white):
 			king_location_y, king_location_x = position["K0"]
 		else:
 			king_location_y, king_location_x = position["k0"]
-	except Keyerror:
+	except KeyError:
 		print("KING NOT FOUND")
 
 
@@ -362,9 +364,9 @@ def king_moves_search(legal_moves, position, position_swapped, piece, white):
 	for direction in queen_moves:
 		move_y = location_y + direction[0]
 		move_x = location_x + direction[1]
-		if move_x >= 0 and move_x <= 7 and move_y >= 0 and move_y <= 7:
-			
-			
+		if 0 <= move_x <= 7 and 0 <= move_y <= 7:
+
+
 			if (move_y, move_x) not in position_swapped:
 				moving_into_check = pins_and_checks_search(position, position_swapped, white, move_y, move_x)[1]
 				if len(moving_into_check) == 0:
@@ -374,12 +376,12 @@ def king_moves_search(legal_moves, position, position_swapped, piece, white):
 					moving_into_check = pins_and_checks_search(position, position_swapped, white, move_y, move_x)[1]
 					if len(moving_into_check) == 0:
 						if position_swapped[(move_y, move_x)][0] not in white_pieces:
-							legal_moves.append((piece_type, location, (move_y, move_x))) 
+							legal_moves.append((piece_type, location, (move_y, move_x)))
 				else:
 					moving_into_check = pins_and_checks_search(position, position_swapped, white, move_y, move_x)[1]
 					if len(moving_into_check) == 0:
 						if position_swapped[(move_y, move_x)][0] not in black_pieces:
-							legal_moves.append((piece_type, location, (move_y, move_x))) 
+							legal_moves.append((piece_type, location, (move_y, move_x)))
 
 	return legal_moves
 
@@ -389,17 +391,17 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 			king_location_y, king_location_x = position["K0"]
 		else:
 			king_location_y, king_location_x = position["k0"]
-	except Keyerror:
-		print("KING NOT FOUND")
+	except KeyError:
+		print("KING NOT FOUND") #TODO should this raise an exception?
 	pinned_pieces, in_check = pins_and_checks_search(position, position_swapped, white, king_location_y, king_location_x)
 	legal_moves = []
 
 	if len(in_check) == 2:
-		legal_moves = king_moves_search(legal_moves, position, position_swapped, piece, white)
+		legal_moves = king_moves_search(legal_moves, position, position_swapped, piece, white) #TODO piece isn't defined here
 		return legal_moves # king moves only if in double check
 
-	else: 
-		if white: 
+	else:
+		if white:
 			if previous_move[0] == "p" and previous_move[1][0] == 1 and previous_move[2][0] == 3: # Is fancy french possible
 				en_passant_maybe = True
 			else:
@@ -411,7 +413,7 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 			if castling_queenside:
 				if (7, 3) not in position_swapped and (7, 2) not in position_swapped and (7, 1) not in position_swapped:
 					legal_moves.append(("O-O-O", (7, 4), (7, 2)))
-			
+
 
 
 			for piece in position:
@@ -578,7 +580,7 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 
 	return legal_moves
 
-	
+
 
 
 
