@@ -551,8 +551,6 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 				print("Error")
 		return forced_moves
 
-
-	print(pinned_pieces)
 	if len(pinned_pieces) >= 1:
 		pinned_legal_moves = []
 		for pin in pinned_pieces:
@@ -570,7 +568,6 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 					for i in range(1, pin_distance_max + 1):
 						move_y = king_location_y + i * dist_y_unit
 						move_x = king_location_x + i * dist_x_unit
-						print(move_y + dist_y_unit * i, move_x + dist_x_unit * i, i)
 						if move[2] == (move_y, move_x):
 							pinned_legal_moves.append(move)
 				else:
