@@ -10,21 +10,22 @@ def evaluate(position):
 	score = 0
 	material_sum = 0
 	for key, val in position: # Ignore pawns for calculating game stage
-		if key[0] == "N":
+		piece = key[0]
+		if piece == "N":
 			material_sum += 781
-		elif key[0] == "B":
+		elif piece == "B":
 			material_sum += 825
-		elif key[0] == "R":
+		elif piece == "R":
 			material_sum += 1276
-		elif key[0] == "Q":
+		elif piece == "Q":
 			material_sum += 2538
-		elif key[0] == "n":
+		elif piece == "n":
 			material_sum += 781
-		elif key[0] == "b":
+		elif piece == "b":
 			material_sum += 825
-		elif key[0] == "r":
+		elif piece == "r":
 			material_sum += 1276
-		elif key[0] == "q":
+		elif piece == "q":
 			material_sum += 2538
 
 	if material_sum > 15258:
@@ -43,61 +44,62 @@ def evaluate(position):
 
 
 	for key, val in position:
-		if key[0] == "P":
+		piece = key[0]
+		if piece == "P":
 			score += pawn_value
 			if val in center_squares:
 				score += 175
 			elif val in outer_center_squares:
 				score += 150
-		elif key[0] == "N":
+		elif piece == "N":
 			score += knight_value
 			if val in center_squares:
 				score += 300
 			elif val in outer_center_squares:
 				score += 200
-		elif key[0] == "B":
+		elif piece == "B":
 			score += bishop_value
 			if val in center_squares:
 				score += 150
 			elif val in outer_center_squares:
 				score += 125
-		elif key[0] == "R":
+		elif piece == "R":
 			score += rook_value
 			if val in center_squares:
 				score += 40
 			elif val in outer_center_squares:
 				score += 40
-		elif key[0] == "Q":
+		elif piece == "Q":
 			score += queen_value
 			if val in center_squares:
 				score += 40
 			elif val in outer_center_squares:
 				score += 40
-		elif key[0] == "p":
+		elif piece == "p":
 			score -= pawn_value
 			if val in center_squares:
 				score -= 175
 			elif val in outer_center_squares:
 				score -= 150
-		elif key[0] == "n":
+		elif piece == "n":
 			score -= knight_value
 			if val in center_squares:
 				score -= 300
 			elif val in outer_center_squares:
 				score -= 200
-		elif key[0] == "b":
+		elif piece == "b":
 			score -= bishop_value
 			if val in center_squares:
 				score -= 150
 			elif val in outer_center_squares:
 				score -= 120
-		elif key[0] == "r":
+		elif piece == "r":
 			score -= rook_value
 			if val in center_squares:
 				score -= 40
 			elif val in outer_center_squares:
 				score -= 40
-		elif key[0] == "q":
+		elif piece == "q":
 			score -= queen_value
 			if val in center_squares:
 				score -= 40
