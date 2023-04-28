@@ -8,9 +8,9 @@
 
 
 global white_pieces
-white_pieces = ("K", "Q", "R", "B", "N", "P")
+white_pieces = ("K", "Q", "R", "B", "N", "P", "O-O-O", "O-O")
 global black_pieces
-black_pieces = ("k", "q", "r", "b", "n", "p")
+black_pieces = ("k", "q", "r", "b", "n", "p", "o-o-o", "o-o")
 
 global bishop_moves
 bishop_moves = ((1, 1), (1, -1), (-1, 1), (-1, -1))
@@ -51,7 +51,7 @@ def in_check_from_square(position_swapped, search_square, white, in_check, possi
 				stop_searching_row = True
 			elif piece[0]  == piece_check or piece[0] == "q":
 				if len(possibly_pinned_pieces) == 0:
-					in_check.append((search_square), piece_check)
+					in_check.append((search_square, piece_check))
 					stop_searching_row = True
 				else:
 					pinned = True
@@ -107,25 +107,24 @@ def pins_and_checks_search(position, position_swapped, white, king_location_y, k
 			move_y = king_location_y + directions[0] * move_length
 			move_x = king_location_x + directions[1] * move_length
 			if move_x >= 0 and move_x <= 7 and move_y >= 0 and move_y <= 7:
-				break
-			search_square = (move_y, move_x) # row_search
-			in_check, stop_searching_row, possibly_pinned_pieces, pinned = in_check_from_square(position_swapped, search_square, white, 
-																			in_check, possibly_pinned_pieces, row, pinned)
-			if pinned:
-				pinned_pieces.append((possibly_pinned_pieces[0], search_square))
-				pinned = False
-				break
-			if stop_searching_row:
+				search_square = (move_y, move_x) # row_search
+				in_check, stop_searching_row, possibly_pinned_pieces, pinned = in_check_from_square(position_swapped, search_square, white, 
+																				in_check, possibly_pinned_pieces, row, pinned)
+				if pinned:
+					pinned_pieces.append((possibly_pinned_pieces[0], search_square))
+					pinned = False
+					break
+				if stop_searching_row:
+					break
+			else:
 				break
 		possibly_pinned_pieces = []
 
 	if white:
 		for i in range(-1, 2, 2):
 			search_square_pawn = (king_location_y - 1, king_location_x + i)
-			print(search_square_pawn)
 			if search_square_pawn in position_swapped:
 				if position_swapped[search_square_pawn][0] == 'p':
-					
 					in_check.append((search_square_pawn, "p"))
 	else:
 		for i in range(-1, 2, 2):
@@ -356,6 +355,7 @@ def king_moves_search(legal_moves, position, position_swapped, piece, white):
 	except Keyerror:
 		print("KING NOT FOUND")
 
+
 	location = position[piece]
 	location_y = location[0]
 	location_x = location[1]
@@ -363,23 +363,23 @@ def king_moves_search(legal_moves, position, position_swapped, piece, white):
 		move_y = location_y + direction[0]
 		move_x = location_x + direction[1]
 		if move_x >= 0 and move_x <= 7 and move_y >= 0 and move_y <= 7:
-			moving_into_check = pins_and_checks_search(position, position_swapped, white, move_y, location_x)[1]
+			
+			
 			if (move_y, move_x) not in position_swapped:
+				moving_into_check = pins_and_checks_search(position, position_swapped, white, move_y, move_x)[1]
 				if len(moving_into_check) == 0:
 					legal_moves.append((piece_type, location, (move_y, move_x)))
 			else:
 				if white:
-					if position_swapped[(move_y, move_x)][0] in white_pieces:
-						break
-					else:
-						legal_moves.append((piece_type, location, (move_y, move_x))) 
-						break
+					moving_into_check = pins_and_checks_search(position, position_swapped, white, move_y, move_x)[1]
+					if len(moving_into_check) == 0:
+						if position_swapped[(move_y, move_x)][0] not in white_pieces:
+							legal_moves.append((piece_type, location, (move_y, move_x))) 
 				else:
-					if position_swapped[(move_y, move_x)][0] in black_pieces:
-						break
-					else:
-						legal_moves.append((piece_type, location, (move_y, move_x))) 
-						break
+					moving_into_check = pins_and_checks_search(position, position_swapped, white, move_y, move_x)[1]
+					if len(moving_into_check) == 0:
+						if position_swapped[(move_y, move_x)][0] not in black_pieces:
+							legal_moves.append((piece_type, location, (move_y, move_x))) 
 
 	return legal_moves
 
@@ -405,10 +405,13 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 			else:
 				en_passant_maybe = False
 
-			if castling_queenside:
-				legal_moves.append("O-O-O", (7, 4), (7, 2))
 			if castling_kingside:
-				legal_moves.append("O-O", (7, 4), (7, 6))
+				if (7,5) not in position_swapped and (7, 4) not in position_swapped:
+					legal_moves.append(("O-O", (7, 4), (7, 6)))
+			if castling_queenside:
+				if (7, 3) not in position_swapped and (7, 2) not in position_swapped and (7, 1) not in position_swapped:
+					legal_moves.append(("O-O-O", (7, 4), (7, 2)))
+			
 
 
 			for piece in position:
@@ -434,9 +437,11 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 
 
 			if castling_kingside:
-				legal_moves.append("o-o", (0, 4), (0, 6))
+				if (0, 5) not in position_swapped and (0, 4) not in position_swapped:
+					legal_moves.append(("o-o", (0, 4), (0, 6)))
 			if castling_queenside:
-				legal_moves.append("o-o-o", (0, 4), (0, 2))
+				if (0, 3) not in position_swapped and (0, 2) not in position_swapped and (0, 1) not in position_swapped:
+					legal_moves.append(("o-o-o", (0, 4), (0, 2)))
 
 
 			for piece in position:
@@ -454,32 +459,111 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 					legal_moves = king_moves_search(legal_moves, position, position_swapped, piece, white)
 
 
+	# for loop to check for pawn promotions
+	if len(in_check) == 1: # returns forced_moves instead of legal_moves
+		if white:
+			in_check = in_check[0]
+			forced_moves = []
 
-	if len(in_check) == 1:
-		square_distance = (in_check[0][0] - king_location_y, in_check[0][1] - king_location_x)
+			checking_piece = in_check[1] # Don't need the [0] after because in_check[1] is 1 character
 
-		checking_piece = in_check[2]
+			checking_square_y = in_check[0][0]
+			checking_square_x = in_check[0][1]
 
-		if checking_piece == "N":
-			for move in legal_moves:
-				if move[0] == "K":
-					forced_moves.append(move)
-				elif move[2] == in_check[0]:
-					forced_moves.append(move)
+			square_distance = (checking_square_y - king_location_y, checking_square_x - king_location_x)
+			square_distance_max = max(checking_square_y - king_location_y, checking_square_x - king_location_x)
+			direction_y = square_distance[0] // square_distance_max
+			direction_x = square_distance[1] // square_distance_max
 
-		elif checking_piece == "B":
+			if checking_piece == "n":
+				for move in legal_moves:
+					if move[0] == "k":
+						forced_moves.append(move)
+					elif move[2] == in_check[0]:
+						forced_moves.append(move)
 
-		elif checking_piece == "N":
+			elif checking_piece == "b":
+				for i in range(1, square_distance_max + 1):
+					move_y = king_location_y + i * direction_y
+					move_x = king_location_x + i * direction_x
+					for move in legal_moves:
+						if move[2] == (move_y, move_x):
+							forced_moves.append(move)
 
-		elif checking_piece == "P":
+			elif checking_piece == "r":
+				for i in range(1, square_distance_max + 1):
+					move_y = king_location_y + i * direction_y
+					move_x = king_location_x + i * direction_x
+					for move in legal_moves:
+						if move[2] == (move_y, move_x) or move[0] == "k":
+							forced_moves.append(move)
 
+			elif checking_piece == "p":
+				for move in legal_moves:
+					if move[0] == "k" or move[2] == (in_check[0]):
+						forced_moves.append(move)
+
+			else:
+				print("Error")
 		else:
-			print("Error")
+			in_check = in_check[0]
+			forced_moves = []
+
+			checking_piece = in_check[1] # Don't need the [0] after because in_check[1] is 1 character
+
+			checking_square_y = in_check[0][0]
+			checking_square_x = in_check[0][1]
+
+			square_distance = (checking_square_y - king_location_y, checking_square_x - king_location_x)
+			square_distance_max = max(checking_square_y - king_location_y, checking_square_x - king_location_x)
+			direction_y = square_distance[0] // square_distance_max
+			direction_x = square_distance[1] // square_distance_max
+
+			if checking_piece == "N":
+				for move in legal_moves:
+					if move[0] == "K":
+						forced_moves.append(move)
+					elif move[2] == in_check[0]:
+						forced_moves.append(move)
+
+			elif checking_piece == "B":
+				for i in range(1, square_distance_max + 1):
+					move_y = king_location_y + i * direction_y
+					move_x = king_location_x + i * direction_x
+					for move in legal_moves:
+						if move[2] == (move_y, move_x):
+							forced_moves.append(move)
+
+			elif checking_piece == "R":
+				for i in range(1, square_distance_max + 1):
+					move_y = king_location_y + i * direction_y
+					move_x = king_location_x + i * direction_x
+					for move in legal_moves:
+						if move[2] == (move_y, move_x) or move[0] == "K":
+							forced_moves.append(move)
+
+			elif checking_piece == "P":
+				for move in legal_moves:
+					if move[0] == "K" or move[2] == (in_check[0]):
+						forced_moves.append(move)
+
+			else:
+				print("Error")
+		return forced_moves
 
 
-
-
-	
+	print(pinned_pieces)
+	for pin in pinned_pieces:
+		piece = pin[0]
+		location = position[piece]
+		for move in legal_moves:
+			if move[1] == location:
+				dist_y = pin[1][0] - king_location_y[0]
+				dist_x = pin[1][1] - king_location_x[1]
+				pin_distance_max = max(dist_y, dist_x)
+				for i in range(1, pin_distance_max + 1):
+					move_y = location_y + i
+					move_x = location_x + i
 
 
 
@@ -492,16 +576,17 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 if __name__ == "__main__":
 	white = True
 	# goes row (8-1), column (a-h) # q0 is pinning pawn to king, "q0":(4, 7)
-	start_position = {"r0" : (0, 0), "n0" : (0, 1), "b0" : (0, 2), "q0":(0, 3), "k0" : (0, 4), "b1" : (0, 5), "n2": (0, 6), "r2":(0, 7), 
+	start_position = {"r0" : (0, 0), "n0" : (0, 1), "b0" : (0, 2), "q0":(4, 4), "k0" : (0, 4), "b1" : (0, 5), "n2": (0, 6), "r2":(0, 7), 
 			"p0": (1, 0), "p1": (1, 1), "p2":(1, 2), "p3":(1, 3), "p4":(1, 4), "p5":(1, 5), "p6": (1, 6), "p7":(1, 7),
 			"P0":(6, 0), "P1":(6, 1), "P2":(6, 2), "P3":(6, 3), "P4":(6, 4), "P5":(6, 5), "P6":(6, 6), "P7":(6, 7),
 			"R0":(7, 0), "N0":(7, 1), "B0":(7, 2), "Q0":(7, 3), "K0":(7, 4), "B1":(7, 5), "N1":(7, 6), "R1":(7, 7)}
+
 	previous_move = ("P", (6, 4), (4, 4))
 	position_swapped = dict([(value, key) for key, value in start_position.items()])
 	legal_moves = legal_move_search(start_position, position_swapped, white, previous_move, True, True)
 
 	# testing code below
-	search_pieces = ["p"]
+	search_pieces = white_pieces
 	printed_list = []
 	for i in legal_moves:
 		for j in search_pieces:
@@ -510,9 +595,11 @@ if __name__ == "__main__":
 	print(printed_list)
 
 
+
+
 	# make sure no global variables are accidentally modified
-	assert white_pieces == ("K", "Q", "R", "B", "N", "P"), "White pieces changed"
-	assert black_pieces == ("k", "q", "r", "b", "n", "p"), "Black pieces changed"
+	assert white_pieces == ("K", "Q", "R", "B", "N", "P", "O-O-O", "O-O"), "White pieces changed"
+	assert black_pieces == ("k", "q", "r", "b", "n", "p", "o-o-o", "o-o"), "Black pieces changed"
 	assert rook_moves == ((1, 0), (-1, 0), (0, 1), (0, -1)), "Rook moves changed"
 	assert bishop_moves == ((1, 1), (1, -1), (-1, 1), (-1, -1)), "Bishop moves changed"
 	assert knight_moves == ((1, 2), (2, 1), (-1, 2), (-2, 1), (1, -2), (-2, -1), (1, -2), (2, -1)), "Knight moves changed"
