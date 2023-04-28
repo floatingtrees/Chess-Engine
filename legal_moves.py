@@ -132,7 +132,7 @@ def pins_and_checks_search(position, position_swapped, white, king_location_y, k
 		for i in range(-1, 2, 2):
 			search_square_pawn = (king_location_y + 1, king_location_x + i)
 			if search_square_pawn in position_swapped and position_swapped[search_square_pawn] == 'P':
-				in_check.append((search_square, "P"))
+				in_check.append((search_square, "P")) #TODO is search_square supposed to be search_square_pawn?
 
 	return pinned_pieces, in_check
 
@@ -228,7 +228,7 @@ def knight_legal_moves_search(legal_moves, position, position_swapped, piece, wh
 	for i in knight_moves: # Don't break
 		move_y = location[0] + i[0]
 		move_x = location[1] + i[1]
-		if move_x >= 0 and move_x <= 7 and move_y >= 0 and move_y <= 7:
+		if 0 <= move_x <= 7 and 0 <= move_y <= 7:
 			if (move_y, move_x) not in position_swapped:
 				legal_moves.append((piece_type, location, (move_y, move_x)))
 			else:
@@ -258,7 +258,7 @@ def bishop_moves_search(legal_moves, position, position_swapped, piece, white):
 		for move_length in range(1, 8):
 			move_y = location_y + direction[0] * move_length
 			move_x = location_x + direction[1] * move_length
-			if move_x >= 0 and move_x <= 7 and move_y >= 0 and move_y <= 7: # Use or because it's cheaper to eval
+			if 0 <= move_x <= 7 and 0 <= move_y <= 7: # Use or because it's cheaper to eval
 				if (move_y, move_x) not in position_swapped:
 					legal_moves.append((piece_type, location, (move_y, move_x)))
 				else:
@@ -291,7 +291,7 @@ def rook_moves_search(legal_moves, position, position_swapped, piece, white):
 		for move_length in range(1, 8):
 			move_y = location_y + direction[0] * move_length
 			move_x = location_x + direction[1] * move_length
-			if move_x >= 0 and move_x <= 7 and move_y >= 0 and move_y <= 7: # Use or because it's cheaper to eval
+			if 0 <= move_x <= 7 and 0 <= move_y <= 7: # Use or because it's cheaper to eval
 				if (move_y, move_x) not in position_swapped:
 					legal_moves.append((piece_type, location, (move_y, move_x)))
 				else:
