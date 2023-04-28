@@ -27,82 +27,82 @@ def evaluate(position):
 		elif key[0] == "q":
 			material_sum += 2538
 
-		if material_sum > 15258:
-			pawn_value, knight_value, bishop_value, rook_value, queen_value = midgame_values
-		elif material_sum < 3915:
-			pawn_value, knight_value, bishop_value, rook_value, queen_value = endgame_values
-		else:
-			values = []
-			pawn_value = midgame_values[0] + ((endgame_values[0]-midgame_values[0]) * (material_sum - 3915)) / 11343
-			knight_value = midgame_values[1] + ((endgame_values[1]-midgame_values[1]) * (material_sum - 3915)) / 11343
-			bishop_value = midgame_values[2] + ((endgame_values[2]-midgame_values[2]) * (material_sum - 3915)) / 11343
+	if material_sum > 15258:
+		pawn_value, knight_value, bishop_value, rook_value, queen_value = midgame_values
+	elif material_sum < 3915:
+		pawn_value, knight_value, bishop_value, rook_value, queen_value = endgame_values
+	else:
+		values = []
+		pawn_value = midgame_values[0] + ((endgame_values[0]-midgame_values[0]) * (material_sum - 3915)) / 11343
+		knight_value = midgame_values[1] + ((endgame_values[1]-midgame_values[1]) * (material_sum - 3915)) / 11343
+		bishop_value = midgame_values[2] + ((endgame_values[2]-midgame_values[2]) * (material_sum - 3915)) / 11343
 
-			rook_value = midgame_values[3] + ((endgame_values[3]-midgame_values[3]) * (material_sum - 3915)) / 11343
-			queen_value = midgame_values[4] + ((endgame_values[4]-midgame_values[4]) * (material_sum - 3915)) / 11343
+		rook_value = midgame_values[3] + ((endgame_values[3]-midgame_values[3]) * (material_sum - 3915)) / 11343
+		queen_value = midgame_values[4] + ((endgame_values[4]-midgame_values[4]) * (material_sum - 3915)) / 11343
 
 
 
-		for key, val in position:
-			if key[0] == "P":
-				score += pawn_value
-				if val in center_squares:
-					score += 175
-				elif val in outer_center_squares:
-					score += 150
-			elif key[0] == "N":
-				score += knight_value
-				if val in center_squares:
-					score += 300
-				elif val in outer_center_squares:
-					score += 200
-			elif key[0] == "B":
-				score += bishop_value
-				if val in center_squares:
-					score += 150
-				elif val in outer_center_squares:
-					score += 125
-			elif key[0] == "R":
-				score += rook_value
-				if val in center_squares:
-					score += 40
-				elif val in outer_center_squares:
-					score += 40
-			elif key[0] == "Q":
-				score += queen_value
-				if val in center_squares:
-					score += 40
-				elif val in outer_center_squares:
-					score += 40
-			elif key[0] == "p":
-				score -= pawn_value
-				if val in center_squares:
-					score -= 175
-				elif val in outer_center_squares:
-					score -= 150
-			elif key[0] == "n":
-				score -= knight_value
-				if val in center_squares:
-					score -= 300
-				elif val in outer_center_squares:
-					score -= 200
-			elif key[0] == "b":
-				score -= bishop_value
-				if val in center_squares:
-					score -= 150
-				elif val in outer_center_squares:
-					score -= 120
-			elif key[0] == "r":
-				score -= rook_value
-				if val in center_squares:
-					score -= 40
-				elif val in outer_center_squares:
-					score -= 40
-			elif key[0] == "q":
-				score -= queen_value
-				if val in center_squares:
-					score -= 40
-				elif val in outer_center_squares:
-					score -= 40
+	for key, val in position:
+		if key[0] == "P":
+			score += pawn_value
+			if val in center_squares:
+				score += 175
+			elif val in outer_center_squares:
+				score += 150
+		elif key[0] == "N":
+			score += knight_value
+			if val in center_squares:
+				score += 300
+			elif val in outer_center_squares:
+				score += 200
+		elif key[0] == "B":
+			score += bishop_value
+			if val in center_squares:
+				score += 150
+			elif val in outer_center_squares:
+				score += 125
+		elif key[0] == "R":
+			score += rook_value
+			if val in center_squares:
+				score += 40
+			elif val in outer_center_squares:
+				score += 40
+		elif key[0] == "Q":
+			score += queen_value
+			if val in center_squares:
+				score += 40
+			elif val in outer_center_squares:
+				score += 40
+		elif key[0] == "p":
+			score -= pawn_value
+			if val in center_squares:
+				score -= 175
+			elif val in outer_center_squares:
+				score -= 150
+		elif key[0] == "n":
+			score -= knight_value
+			if val in center_squares:
+				score -= 300
+			elif val in outer_center_squares:
+				score -= 200
+		elif key[0] == "b":
+			score -= bishop_value
+			if val in center_squares:
+				score -= 150
+			elif val in outer_center_squares:
+				score -= 120
+		elif key[0] == "r":
+			score -= rook_value
+			if val in center_squares:
+				score -= 40
+			elif val in outer_center_squares:
+				score -= 40
+		elif key[0] == "q":
+			score -= queen_value
+			if val in center_squares:
+				score -= 40
+			elif val in outer_center_squares:
+				score -= 40
 
 	return score
 
