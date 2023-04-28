@@ -515,7 +515,7 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 			checking_square_x = in_check[0][1]
 
 			square_distance = (checking_square_y - king_location_y, checking_square_x - king_location_x)
-			square_distance_max = max(checking_square_y - king_location_y, checking_square_x - king_location_x)
+			square_distance_max = max(abs(checking_square_y - king_location_y), abs(checking_square_x - king_location_x))
 			direction_y = square_distance[0] // square_distance_max
 			direction_x = square_distance[1] // square_distance_max
 
@@ -551,19 +551,28 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 				print("Error")
 		return forced_moves
 
+	if len(pinned_pieces) >= 1:
+		pinned_legal_moves = []
+		for pin in pinned_pieces:
+			piece = pin[0]
+			location = position[piece]
+			for move in legal_moves:
+				if move[1] == location:
 
-	print(pinned_pieces)
-	for pin in pinned_pieces:
-		piece = pin[0]
-		location = position[piece]
-		for move in legal_moves:
-			if move[1] == location:
-				dist_y = pin[1][0] - king_location_y[0]
-				dist_x = pin[1][1] - king_location_x[1]
-				pin_distance_max = max(dist_y, dist_x)
-				for i in range(1, pin_distance_max + 1):
-					move_y = location_y + i
-					move_x = location_x + i
+					dist_y = pin[1][0] - king_location_y
+					dist_x = pin[1][1] - king_location_x
+					pin_distance_max = max(abs(dist_y), abs(dist_x))
+					dist_y_unit = dist_y//pin_distance_max
+					dist_x_unit = dist_x//pin_distance_max
+
+					for i in range(1, pin_distance_max + 1):
+						move_y = king_location_y + i * dist_y_unit
+						move_x = king_location_x + i * dist_x_unit
+						if move[2] == (move_y, move_x):
+							pinned_legal_moves.append(move)
+				else:
+					pinned_legal_moves.append(move)
+		return pinned_legal_moves
 
 
 
@@ -576,17 +585,14 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 if __name__ == "__main__":
 	white = True
 	# goes row (8-1), column (a-h) # q0 is pinning pawn to king, "q0":(4, 7)
-	start_position = {"r0" : (0, 0), "n0" : (0, 1), "b0" : (0, 2), "q0":(4, 4), "k0" : (0, 4), "b1" : (0, 5), "n2": (0, 6), "r2":(0, 7), 
-			"p0": (1, 0), "p1": (1, 1), "p2":(1, 2), "p3":(1, 3), "p4":(1, 4), "p5":(1, 5), "p6": (1, 6), "p7":(1, 7),
-			"P0":(6, 0), "P1":(6, 1), "P2":(6, 2), "P3":(6, 3), "P4":(6, 4), "P5":(6, 5), "P6":(6, 6), "P7":(6, 7),
-			"R0":(7, 0), "N0":(7, 1), "B0":(7, 2), "Q0":(7, 3), "K0":(7, 4), "B1":(7, 5), "N1":(7, 6), "R1":(7, 7)}
+	start_position = {"q0":(4, 4), "K0":(4, 6), "R1":(4, 5)}
 
 	previous_move = ("P", (6, 4), (4, 4))
 	position_swapped = dict([(value, key) for key, value in start_position.items()])
 	legal_moves = legal_move_search(start_position, position_swapped, white, previous_move, True, True)
 
 	# testing code below
-	search_pieces = white_pieces
+	search_pieces = ["R"]
 	printed_list = []
 	for i in legal_moves:
 		for j in search_pieces:
