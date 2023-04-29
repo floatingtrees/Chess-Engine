@@ -577,10 +577,6 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 
 	return legal_moves
 
-
-
-
-
 if __name__ == "__main__":
 	white = True
 	# goes row (8-1), column (a-h) # q0 is pinning pawn to king, "q0":(4, 7)
@@ -597,10 +593,8 @@ if __name__ == "__main__":
 		for j in search_pieces:
 			if i[0] == j:
 				printed_list.append(i)
+
 	print(printed_list)
-
-
-
 
 	# make sure no global variables are accidentally modified
 	assert white_pieces == ("K", "Q", "R", "B", "N", "P", "O-O-O", "O-O"), "White pieces changed"
