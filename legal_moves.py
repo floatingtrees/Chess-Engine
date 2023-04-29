@@ -158,7 +158,7 @@ def fancy_french_move(legal_moves, original_square, previous_move, white): # Mov
 	return legal_moves
 
 
-def w_pawn_capture_search(legal_moves, original_square, capture_square): # list, tuple, tuple
+def w_pawn_capture_search(legal_moves, position_swapped, original_square, capture_square): # list, tuple, tuple
 	if capture_square in position_swapped:
 		movement_square_occupier = position_swapped[capture_square][0]
 		if movement_square_occupier in black_pieces:
@@ -185,10 +185,10 @@ def w_pawn_legal_moves_search(legal_moves, position, position_swapped, piece, en
 		else:
 			break
 	for i in range(-1, 2, 2):
-		legal_moves = w_pawn_capture_search(legal_moves, piece_location, (piece_current_y - 1, piece_current_x + i))
+		legal_moves = w_pawn_capture_search(legal_moves, position_swapped, piece_location, (piece_current_y - 1, piece_current_x + i))
 	return legal_moves
 
-def b_pawn_capture_search(legal_moves, original_square, capture_square): # list, tuple, tuple
+def b_pawn_capture_search(legal_moves, position_swapped, original_square, capture_square): # list, tuple, tuple
 	if capture_square in position_swapped:
 		movement_square_occupier = position_swapped[capture_square][0]
 		if movement_square_occupier in white_pieces:
@@ -213,7 +213,7 @@ def b_pawn_legal_moves_search(legal_moves, position, position_swapped, piece, en
 		else:
 			break
 	for i in range(-1, 2, 2):
-		legal_moves = b_pawn_capture_search(legal_moves, piece_location, (piece_current_y + 1, piece_current_x + i))
+		legal_moves = b_pawn_capture_search(legal_moves, position_swapped, piece_location, (piece_current_y + 1, piece_current_x + i))
 	return legal_moves
 
 
