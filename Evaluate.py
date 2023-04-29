@@ -1,5 +1,5 @@
-
 global center_squares
+
 center_squares = {(3, 3), (3, 4), (4, 3), (4, 4)}
 outer_center_squares = {(2, 2), (2, 3), (2, 4), (2, 5), (5, 5), (5, 4), (5, 3), (5, 2), (3, 2), (3, 5), (4, 2), (4, 2)}
 
@@ -127,6 +127,7 @@ def time_test(starting_position):
 		times.append(timeit.default_timer() - starttime)
 	print(sum(times) / len(times))
 
+#testing only
 if __name__ == '__main__':
 	starting_position = {"r0": (0, 0), "n0": (0, 1), "b0": (0, 2), "q0": (0, 3), "k0": (0, 4), "b1": (0, 5), "n2": (0, 6), "r2": (0, 7),
 		 "p0": (1, 0), "p1": (1, 1), "p2": (1, 2), "p3": (1, 3), "p4": (1, 4), "p5": (1, 5), "p6": (1, 6), "p7": (1, 7),

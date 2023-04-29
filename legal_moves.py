@@ -6,6 +6,8 @@
 
 #Quiescence search captures can use (roughly) the same algorithm
 
+import math
+import time
 
 global white_pieces
 white_pieces = ("K", "Q", "R", "B", "N", "P", "O-O-O", "O-O")
@@ -53,7 +55,7 @@ def in_check_from_square(position_swapped, search_square, white, in_check, possi
 				stop_searching_row = True
 			elif piece[0]  == piece_check or piece[0] == "q":
 				if len(possibly_pinned_pieces) == 0:
-					in_check.append((search_square, piece_check))
+					in_check.append(((search_square, piece_check)))
 					stop_searching_row = True
 				else:
 					pinned = True
@@ -64,7 +66,7 @@ def in_check_from_square(position_swapped, search_square, white, in_check, possi
 				stop_searching_row = True
 			elif piece[0] == piece_check or piece[0] == "Q":
 				if len(possibly_pinned_pieces) == 0:
-					in_check.append((search_square), piece_check)
+					in_check.append(((search_square), piece_check))
 					stop_searching_row = True
 				else:
 					pinned = True
@@ -85,10 +87,10 @@ def knight_checks_search(in_check, position_swapped, king_location_y, king_locat
 		else:
 			if white:
 				if piece == "n":
-					in_check.append((king_location_y + i[0], king_location_x + i[1]), "n")
+					in_check.append(((king_location_y + i[0], king_location_x + i[1]), "n"))
 			else:
 				if piece == "N":
-					in_check.append((king_location_y + i[0], king_location_x + i[1]), "N")
+					in_check.append(((king_location_y + i[0], king_location_x + i[1]), "N"))
 	return in_check
 
 def pins_and_checks_search(position, position_swapped, white, king_location_y, king_location_x):
@@ -577,15 +579,21 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 
 	return legal_moves
 
+#testing only
 if __name__ == "__main__":
 	white = True
 	# goes row (8-1), column (a-h) # q0 is pinning pawn to king, "q0":(4, 7)
-	start_position = {"q0":(6, 4), "r0": (4, 4), "K0":(4, 6), "R1":(5, 5)}
+	start_position = {"r0" : (0, 0), "n0" : (0, 1), "b0" : (0, 2), "q0":(0, 3), "k0" : (0, 4), "b1" : (0, 5), "n2": (0, 6), "r2":(0, 7), 
+			"p0": (1, 0), "p1": (1, 1), "p2":(1, 2), "p3":(1, 3), "p4":(1, 4), "p5":(1, 5), "p6": (1, 6), "p7":(1, 7),
+			"P0":(6, 0), "P1":(6, 1), "P2":(6, 2), "P3":(6, 3), "P4":(6, 4), "P5":(6, 5), "P6":(6, 6), "P7":(6, 7),
+			"R0":(7, 0), "N0":(7, 1), "B0":(7, 2), "Q0":(7, 3), "K0":(7, 4), "B1":(7, 5), "N1":(7, 6), "R1":(7, 7)}
 
 	previous_move = ("P", (6, 4), (4, 4))
 	position_swapped = dict([(value, key) for key, value in start_position.items()])
-	legal_moves = legal_move_search(start_position, position_swapped, white, previous_move, True, True)
 
+	start = time.time()
+	legal_moves = legal_move_search(start_position, position_swapped, white, previous_move, True, True)
+	
 	# testing code below
 	search_pieces = ["R"]
 	printed_list = []
@@ -594,7 +602,8 @@ if __name__ == "__main__":
 			if i[0] == j:
 				printed_list.append(i)
 
-	print(printed_list)
+	print(legal_moves)
+	print(time.time() - start)
 
 	# make sure no global variables are accidentally modified
 	assert white_pieces == ("K", "Q", "R", "B", "N", "P", "O-O-O", "O-O"), "White pieces changed"
