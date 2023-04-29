@@ -125,14 +125,13 @@ def pins_and_checks_search(position, position_swapped, white, king_location_y, k
 	if white:
 		for i in range(-1, 2, 2):
 			search_square_pawn = (king_location_y - 1, king_location_x + i)
-			if search_square_pawn in position_swapped:
-				if position_swapped[search_square_pawn][0] == 'p':
-					in_check.append((search_square_pawn, "p"))
+			if search_square_pawn in position_swapped and position_swapped[search_square_pawn][0] == 'p':
+				in_check.append((search_square_pawn, "p"))
 	else:
 		for i in range(-1, 2, 2):
 			search_square_pawn = (king_location_y + 1, king_location_x + i)
-			if search_square_pawn in position_swapped and position_swapped[search_square_pawn] == 'P':
-				in_check.append((search_square, "P")) #TODO is search_square supposed to be search_square_pawn?
+			if search_square_pawn in position_swapped and position_swapped[search_square_pawn][0] == 'P':
+				in_check.append((search_square_pawn, "P"))
 
 	return pinned_pieces, in_check
 
@@ -365,22 +364,20 @@ def king_moves_search(legal_moves, position, position_swapped, piece, white):
 		move_y = location_y + direction[0]
 		move_x = location_x + direction[1]
 		if 0 <= move_x <= 7 and 0 <= move_y <= 7:
-
-
 			if (move_y, move_x) not in position_swapped:
 				moving_into_check = pins_and_checks_search(position, position_swapped, white, move_y, move_x)[1]
 				if len(moving_into_check) == 0:
 					legal_moves.append((piece_type, location, (move_y, move_x)))
 			else:
 				if white:
-					moving_into_check = pins_and_checks_search(position, position_swapped, white, move_y, move_x)[1]
-					if len(moving_into_check) == 0:
-						if position_swapped[(move_y, move_x)][0] not in white_pieces:
+					if position_swapped[(move_y, move_x)][0] not in white_pieces:
+						moving_into_check = pins_and_checks_search(position, position_swapped, white, move_y, move_x)[1]
+						if len(moving_into_check) == 0:
 							legal_moves.append((piece_type, location, (move_y, move_x)))
 				else:
-					moving_into_check = pins_and_checks_search(position, position_swapped, white, move_y, move_x)[1]
-					if len(moving_into_check) == 0:
-						if position_swapped[(move_y, move_x)][0] not in black_pieces:
+					if position_swapped[(move_y, move_x)][0] not in black_pieces:
+						moving_into_check = pins_and_checks_search(position, position_swapped, white, move_y, move_x)[1]
+						if len(moving_into_check) == 0:
 							legal_moves.append((piece_type, location, (move_y, move_x)))
 
 	return legal_moves
@@ -392,12 +389,12 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 		else:
 			king_location_y, king_location_x = position["k0"]
 	except KeyError:
-		print("KING NOT FOUND") #TODO should this raise an exception?
+		raise KeyError("KING NOT FOUND")
 	pinned_pieces, in_check = pins_and_checks_search(position, position_swapped, white, king_location_y, king_location_x)
 	legal_moves = []
 
 	if len(in_check) == 2:
-		legal_moves = king_moves_search(legal_moves, position, position_swapped, piece, white) #TODO piece isn't defined here
+		legal_moves = king_moves_search(legal_moves, position, position_swapped, ["k0", "K0"][white], white)
 		return legal_moves # king moves only if in double check
 
 	else:
