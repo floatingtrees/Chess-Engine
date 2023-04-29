@@ -31,9 +31,9 @@ class Board {
 const initialPieces = [
 	//row is 0=a, etc
 	[0, 0, "wrook"], [1, 0, "wknight"], [2, 0, "wbishop"], [3, 0, "wqueen"], [4, 0, "wking"], [5, 0, "wbishop"], [6, 0, "wknight"], [7, 0, "wrook"],
-	[0, 1, "wpawn"], [1, 1, "wpawn"], [2, 1, "wpawn"], [3, 1, "wpawn"], [4, 1, "wpawn"], [5, 1, "wpawn"], [6, 1, "wpawn"], [7, 1, "wpawn"],
+	//[0, 1, "wpawn"], [1, 1, "wpawn"], [2, 1, "wpawn"], [3, 1, "wpawn"], [4, 1, "wpawn"], [5, 1, "wpawn"], [6, 1, "wpawn"], [7, 1, "wpawn"],
 	[0, 7, "brook"], [1, 7, "bknight"], [2, 7, "bbishop"], [3, 7, "bqueen"], [4, 7, "bking"], [5, 7, "bbishop"], [6, 7, "bknight"], [7, 7, "brook"],
-	[0, 6, "bpawn"], [1, 6, "bpawn"], [2, 6, "bpawn"], [3, 6, "bpawn"], [4, 6, "bpawn"], [5, 6, "bpawn"], [6, 6, "bpawn"], [7, 6, "bpawn"],
+	//[0, 6, "bpawn"], [1, 6, "bpawn"], [2, 6, "bpawn"], [3, 6, "bpawn"], [4, 6, "bpawn"], [5, 6, "bpawn"], [6, 6, "bpawn"], [7, 6, "bpawn"],
 ];
 
 //boolean value for loaded or not
@@ -377,6 +377,113 @@ function drawBoard() {
 	}
 }
 
+function makeMoveBasedOnInput(input) {
+	makeMove(board.positions[parseInt(input.slice(0, 1))][parseInt(input.slice(1, 2))], 
+		board.positions[parseInt(input.slice(2, 3))][parseInt(input.slice(3, 4))])
+}
+let moves = `0007
+3730
+4030
+2763
+5041
+6341
+3041
+7771
+7071
+5735
+7177
+4736
+7767
+3544
+0706`
+
+visualize_moves()
+
+function sleep(ms) {
+  return new Promise(
+    resolve => setTimeout(resolve, ms)
+  );
+}
+async function visualize_moves (){
+	for (i of moves.split("\n")) {
+		await sleep(2000);
+		makeMoveBasedOnInput(i);
+	}
+}
+
+//input moves
+function makeMove(oldTile, newTile) {
+	x = newTile.position[0]
+	y = 7 - newTile.position[1]
+
+	//remove en passanted pawn if pawn made capture move on empty square
+	if (newTile.piece == null && oldTile.position[0] != x) {
+		if (oldTile.piece == "wpawn") {
+			//removes black pawn
+			board.positions[x][4].piece = null;
+		} else if (oldTile.piece == "bpawn") {
+			//removes white pawn
+			board.positions[x][3].piece = null;
+		}
+	}
+
+	newTile.piece = board.positions[oldTile.position[0]][oldTile.position[1]].piece;
+
+	//update king position if king
+	if (newTile.piece == "wking") {
+		wKing[0] = x;
+		wKing[1] = 7 - y;
+
+		whiteCastles[0] = false;
+		whiteCastles[1] = false;
+
+		//castling
+		if (oldTile.position[0] == 4 && oldTile.position[1] == 0 && newTile.position[0] == 6 && newTile.position[1] == 0) {
+			board.positions[5][0].piece = "wrook";
+			board.positions[7][0].piece = null;
+		} else if (oldTile.position[0] == 4 && oldTile.position[1] == 0 && newTile.position[0] == 2 && newTile.position[1] == 0) {
+			board.positions[3][0].piece = "wrook";
+			board.positions[0][0].piece = null;
+		}
+	} else if (newTile.piece == "bking") {
+		bKing[0] = x;
+		bKing[1] = 7 - y;
+
+		blackCastles[0] = false;
+		blackCastles[1] = false;
+
+		//castling
+		if (oldTile.position[0] == 4 && oldTile.position[1] == 7 && newTile.position[0] == 6 && newTile.position[1] == 7) {
+			board.positions[5][7].piece = "brook";
+			board.positions[7][7].piece = null;
+		} else if (oldTile.position[0] == 4 && oldTile.position[1] == 7 && newTile.position[0] == 2 && newTile.position[1] == 7) {
+			board.positions[3][7].piece = "brook";
+			board.positions[0][7].piece = null;
+		}
+	}
+	//remove castling
+	if (newTile.piece == "wrook" && oldTile.position[0] == 0 && oldTile.position[1] == 0) {
+		whiteCastles[0] = false;
+	} else if (newTile.piece == "wrook" && oldTile.position[0] == 7 && oldTile.position[1] == 0) {
+		whiteCastles[1] = false;
+	} else if (newTile.piece == "brook" && oldTile.position[0] == 0 && oldTile.position[1] == 7) {
+		whiteCastles[0] = false;
+	} else if (newTile.piece == "brook" && oldTile.position[0] == 7 && oldTile.position[1] == 7) {
+		whiteCastles[1] = false;
+	}
+
+	//update en passant if applicable otherwise set to false
+	console.log(newTile.position)
+	if (newTile.piece.slice(1) == "pawn" && Math.abs(7 - oldTile.position[1] - y) == 2) {
+		lastEnPassant[0] = x;
+		lastEnPassant[1] = newTile.piece.slice(0, 1);
+	} else {
+		lastEnPassant[0] = -1;
+	}
+
+	oldTile.piece = null;
+}
+
 //controls
 function mouseDown(event) {
 	let x = Math.floor(event.offsetX / 50);
@@ -392,74 +499,9 @@ function mouseDown(event) {
 
 		//if selectedTile is not null and piece has been clicked
 		if (selectedTile[0] != -1 && selectedTile[1] != -1 && oldTile.piece != null && moveIsLegal(oldTile.piece, [selectedTile[0], 7 - selectedTile[1]], [x, 7 - y])) {
-
-			//remove en passanted pawn if pawn made capture move on empty square
-			if (newTile.piece == null && selectedTile[0] != x) {
-				if (oldTile.piece == "wpawn") {
-					//removes black pawn
-					board.positions[x][4].piece = null;
-				} else if (oldTile.piece == "bpawn") {
-					//removes white pawn
-					board.positions[x][3].piece = null;
-				}
-			}
-
-			newTile.piece = board.positions[selectedTile[0]][7 - selectedTile[1]].piece;
-
-			//update king position if king
-			if (newTile.piece == "wking") {
-				wKing[0] = x;
-				wKing[1] = 7 - y;
-
-				whiteCastles[0] = false;
-				whiteCastles[1] = false;
-
-				//castling
-				if (oldTile.position[0] == 4 && oldTile.position[1] == 0 && newTile.position[0] == 6 && newTile.position[1] == 0) {
-					board.positions[5][0].piece = "wrook";
-					board.positions[7][0].piece = null;
-				} else if (oldTile.position[0] == 4 && oldTile.position[1] == 0 && newTile.position[0] == 2 && newTile.position[1] == 0) {
-					board.positions[3][0].piece = "wrook";
-					board.positions[0][0].piece = null;
-				}
-			} else if (newTile.piece == "bking") {
-				bKing[0] = x;
-				bKing[1] = 7 - y;
-
-				blackCastles[0] = false;
-				blackCastles[1] = false;
-
-				//castling
-				if (oldTile.position[0] == 4 && oldTile.position[1] == 7 && newTile.position[0] == 6 && newTile.position[1] == 7) {
-					board.positions[5][7].piece = "brook";
-					board.positions[7][7].piece = null;
-				} else if (oldTile.position[0] == 4 && oldTile.position[1] == 7 && newTile.position[0] == 2 && newTile.position[1] == 7) {
-					board.positions[3][7].piece = "brook";
-					board.positions[0][7].piece = null;
-				}
-			}
-			//remove castling
-			if (newTile.piece == "wrook" && oldTile.position[0] == 0 && oldTile.position[1] == 0) {
-				whiteCastles[0] = false;
-			} else if (newTile.piece == "wrook" && oldTile.position[0] == 7 && oldTile.position[1] == 0) {
-				whiteCastles[1] = false;
-			} else if (newTile.piece == "brook" && oldTile.position[0] == 0 && oldTile.position[1] == 7) {
-				whiteCastles[0] = false;
-			} else if (newTile.piece == "brook" && oldTile.position[0] == 7 && oldTile.position[1] == 7) {
-				whiteCastles[1] = false;
-			}
-
-			//update en passant if applicable otherwise set to false
-			if (newTile.piece.slice(1) == "pawn" && Math.abs(selectedTile[1] - y) == 2) {
-				lastEnPassant[0] = x;
-				lastEnPassant[1] = newTile.piece.slice(0, 1);
-			} else {
-				lastEnPassant[0] = -1;
-			}
-
-			oldTile.piece = null;
-
+			makeMove(oldTile, newTile)
 			selectedTile = [-1, -1];
+			
 		} else {
 			selectedTile = [x, y];
 		}
