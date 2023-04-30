@@ -32,7 +32,9 @@ const initialPieces = [
 	//row is 0=a, etc
 	[0, 0, "wrook"], [1, 0, "wknight"], [2, 0, "wbishop"], [3, 0, "wqueen"], [4, 0, "wking"], [5, 0, "wbishop"], [6, 0, "wknight"], [7, 0, "wrook"],
 	//[0, 1, "wpawn"], [1, 1, "wpawn"], [2, 1, "wpawn"], [3, 1, "wpawn"], [4, 1, "wpawn"], [5, 1, "wpawn"], [6, 1, "wpawn"], [7, 1, "wpawn"],
-	[0, 7, "brook"], [1, 7, "bknight"], [2, 7, "bbishop"], [3, 7, "bqueen"], [4, 7, "bking"], [5, 7, "bbishop"], [6, 7, "bknight"], [7, 7, "brook"],
+	[0, 7, "brook"], [1, 7, "bknight"], [2, 7, "bbishop"], 
+	//[3, 7, "bqueen"], 
+	[4, 7, "bking"], [5, 7, "bbishop"], [6, 7, "bknight"], [7, 7, "brook"],
 	//[0, 6, "bpawn"], [1, 6, "bpawn"], [2, 6, "bpawn"], [3, 6, "bpawn"], [4, 6, "bpawn"], [5, 6, "bpawn"], [6, 6, "bpawn"], [7, 6, "bpawn"],
 ];
 
@@ -381,21 +383,31 @@ function makeMoveBasedOnInput(input) {
 	makeMove(board.positions[parseInt(input.slice(0, 1))][parseInt(input.slice(1, 2))], 
 		board.positions[parseInt(input.slice(2, 3))][parseInt(input.slice(3, 4))])
 }
-let moves = `0007
-3730
-4030
-2763
-5041
-6341
-3041
-7771
-7071
-5735
-7177
-4736
+let moves = `3041
+4737
+4132
+3746
+2002
+4655
+3233
+5565
+7077
+5702
 7767
+6556
+3366
+5645
+5072
+4535
+6675
 3544
-0706`
+6764
+4433
+7566
+3342
+6462
+4253
+6252`
 
 visualize_moves()
 
@@ -406,7 +418,7 @@ function sleep(ms) {
 }
 async function visualize_moves (){
 	for (i of moves.split("\n")) {
-		await sleep(2000);
+		await sleep(500);
 		makeMoveBasedOnInput(i);
 	}
 }
