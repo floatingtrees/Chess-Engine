@@ -388,107 +388,87 @@ function makeMoveBasedOnInput(input) {
 		board.positions[parseInt(input.slice(2, 3))][parseInt(input.slice(3, 4))])
 }
 let moves = `6052
-6755
-1022
-3634
-3133
 1725
-2042
-2754
-5244
-3735
-4264
-7675
-6455
-6655
 4143
-3443
-4423
-1614
+0605
+1022
+3635
+3133
+2763
+5005
+1605
+2210
+6352
+6152
+3717
+2053
+1711
+1031
+2533
+2123
+3321
+4050
+1100
+3000
+2100
+5041
+0021
+4130
+4644
+5362
+2133
+7172
+5655
+7040
+3345
+6271
+4564
+7273
+6456
+4070
+4736
+7060
+3625
+6061
+6746
+7162
+7675
+6271
+0504
+0103
+2515
+3112
+1505
+7374
+5637
+1200
+0727
 6163
-5463
-3063
-5554
-6354
-1423
-5023
-3533
-2334
-3315
-5456
-4737
-3443
-1511
-5634
-3727
-4031
-1115
-3445
+7767
+3021
+3745
+0012
 2717
-4525
-1525
-4325
+2111
+4524
+7144
+5544
+1101
+2412
+0102
+1220
+6353
+4453
+2324
+6665
+2435
 5766
-2234
-6644
-2122
-4645
-2507
-1707
-3413
-7757
-1325
-5752
-0010
-5251
-3130
-5157
-2223
-5737
-3020
-4422
-1012
-2231
-2010
-3727
-7030
-3153
-1202
-0716
-2533
-5344
-0212
-1607
-3325
-4471
-3070
-7153
-1202
-0716
-2533
-5344
-0212
-1607
-3325
-4433
-7075
-2767
-7545
-6760
-1021
-6067
-2120
-6760
-2021
-6067
-2120
-6760
-2021
-6067
-2120
-6760`
+3546
+6655
+4647
+5511`
 
-visualize_moves()
+// visualize_moves()
 
 function sleep(ms) {
   return new Promise(
@@ -497,7 +477,7 @@ function sleep(ms) {
 }
 async function visualize_moves (){
 	for (i of moves.split("\n")) {
-		await sleep(150);
+		await sleep(1000);
 		makeMoveBasedOnInput(i);
 	}
 }
@@ -580,6 +560,21 @@ function makeMove(oldTile, newTile) {
 	oldTile.piece = null;
 }
 
+function callEngine(x, y, newX, newY) {
+	const Http = new XMLHttpRequest();
+	const url='http://localhost:8080/make_move?player_move=' + x + y + newX + newY;
+	Http.open("GET", url);
+	Http.send();
+
+	Http.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			let text = Http.responseText.slice(1,5)
+			console.log(text);
+			makeMoveBasedOnInput(text);
+		}
+	}
+}
+
 //controls
 function mouseDown(event) {
 	let x = Math.floor(event.offsetX / 50);
@@ -595,6 +590,7 @@ function mouseDown(event) {
 
 		//if selectedTile is not null and piece has been clicked
 		if (selectedTile[0] != -1 && selectedTile[1] != -1 && oldTile.piece != null && moveIsLegal(oldTile.piece, [selectedTile[0], 7 - selectedTile[1]], [x, 7 - y])) {
+			callEngine(oldTile.position[0], oldTile.position[1], newTile.position[0], newTile.position[1])
 			makeMove(oldTile, newTile)
 			selectedTile = [-1, -1];
 			

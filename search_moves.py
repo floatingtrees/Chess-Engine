@@ -6,9 +6,6 @@ import legal_moves
 import evaluate
 import random
 
-#legal_moves.legal_move_search(position, position_swapped, white, previous_move, castling_kingside, castling_queenside):
-#NOTE: in the framework for alphabeta, position_swapped, previous_move, and castling_kingside and castling_queenside are ignored since they should be part of the position dictionary
-
 #if transform piece the moved piece changes into the new transform_piece
 def move_position(position, position_swapped, initial, final, transform_piece=None):
 	#captured piece, remove from position dictionary
@@ -152,10 +149,10 @@ if __name__ == "__main__":
 	# print(f"after one rewind: {position}")
 
 	# take turns
-	for i in range(100):
+	for i in range(200):
 		# try:
 			# print("before move: " + str(position))
-		move = alphabeta(position, position_swapped, -99999, 99999, white=(i % 2 == 0))
+		move = alphabeta(position, position_swapped, -99999, 99999, white=(i % 2 == 0), max_depth=3 + i % 2)
 		print(f"{move[1][1]}{7 - move[1][0]}{move[2][1]}{7 - move[2][0]}")
 		move_position(position, position_swapped, move[1], move[2])
 		# except Exception as e:

@@ -306,7 +306,7 @@ def knight_legal_moves_search(legal_moves, position, position_swapped, piece, wh
 				else:
 					if position_swapped[(move_y, move_x)][0] in black_pieces:
 						if (move_y, move_x) == (2, 6):
-						pass
+							pass
 					else:
 						legal_moves.append((piece_type, location, (move_y, move_x)))
 	return legal_moves
@@ -540,7 +540,7 @@ def legal_move_search(position, position_swapped, white, previous_move, castling
 		# print("all legal moves: " + str(len(legal_moves)))
 
 	# for loop to check for pawn promotions
-	print(in_check, legal_moves, pinned_pieces)
+	#print(in_check, legal_moves, pinned_pieces)
 	if len(in_check) == 1: # returns forced_moves instead of legal_moves
 		if white:
 			in_check = in_check[0]
