@@ -61,9 +61,9 @@ def evaluate(position):
 				if val in center_squares:
 					score += 300
 				elif val in outer_center_squares:
-					score += 450
+					score += 150 
 				elif val == (7, 1) or val == (7, 6):
-					score -= 300
+					score -= 75
 		elif piece == "B":
 			score += bishop_value
 			if opening:
@@ -72,7 +72,7 @@ def evaluate(position):
 				elif val in outer_center_squares:
 					score += 225
 				elif val == (7, 2) or val == (7, 5):
-					score -= 300
+					score -= 75
 		elif piece == "R":
 			score += rook_value
 			if opening:
@@ -100,9 +100,9 @@ def evaluate(position):
 				if val in center_squares:
 					score -= 300
 				elif val in outer_center_squares:
-					score -= 450
+					score -= 150
 				elif val == (0, 1) or val == (0, 6):
-					score += 300
+					score += 75
 		elif piece == "b":
 			score -= bishop_value
 			if opening:
@@ -111,7 +111,7 @@ def evaluate(position):
 				elif val in outer_center_squares:
 					score -= 225
 				elif val == (0, 2) or val == (0, 5):
-					score += 300
+					score += 75
 		elif piece == "r":
 			score -= rook_value
 			if opening:
