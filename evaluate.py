@@ -52,7 +52,7 @@ def evaluate(position):
 			score += pawn_value
 			if opening:
 				if val in center_squares:
-					score += 300 
+					score += 300
 				elif val in outer_center_squares:
 					score += 150
 		elif piece == "N":
