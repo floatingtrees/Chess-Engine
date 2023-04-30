@@ -6,15 +6,10 @@ outer_center_squares = {(2, 2), (2, 3), (2, 4), (2, 5), (5, 5), (5, 4), (5, 3), 
 midgame_values = [126, 781, 825, 1276, 2538]
 endgame_values = [208, 854, 915, 1380, 2682]
 
-last_position = ""
 def evaluate(position):
 	score = 0
 	material_sum = 0
-
-	global last_position
-	last_position = str(position)
-	# print(position.items())
-	for (key, val) in position.items(): # Ignore pawns for calculating game stage
+	for key, val in position: # Ignore pawns for calculating game stage
 		piece = key[0]
 		if piece == "N":
 			material_sum += 781
@@ -35,8 +30,10 @@ def evaluate(position):
 
 	if material_sum > 15258:
 		pawn_value, knight_value, bishop_value, rook_value, queen_value = midgame_values
+		opening = True
 	elif material_sum < 3915:
 		pawn_value, knight_value, bishop_value, rook_value, queen_value = endgame_values
+		opening = False
 	else:
 		values = []
 		pawn_value = midgame_values[0] + ((endgame_values[0]-midgame_values[0]) * (material_sum - 3915)) / 11343
@@ -45,71 +42,82 @@ def evaluate(position):
 
 		rook_value = midgame_values[3] + ((endgame_values[3]-midgame_values[3]) * (material_sum - 3915)) / 11343
 		queen_value = midgame_values[4] + ((endgame_values[4]-midgame_values[4]) * (material_sum - 3915)) / 11343
+		opening = False
 
 
-	# print(position)
-	for (key, val) in position.items():
+
+	for key, val in position:
 		piece = key[0]
 		if piece == "P":
 			score += pawn_value
-			if val in center_squares:
-				score += 175
-			elif val in outer_center_squares:
-				score += 150
+			if opening:
+				if val in center_squares:
+					score += 300 
+				elif val in outer_center_squares:
+					score += 150
 		elif piece == "N":
 			score += knight_value
-			if val in center_squares:
-				score += 300
-			elif val in outer_center_squares:
-				score += 200
+			if opening:
+				if val in center_squares:
+					score += 300
+				elif val in outer_center_squares:
+					score += 450
 		elif piece == "B":
 			score += bishop_value
-			if val in center_squares:
-				score += 150
-			elif val in outer_center_squares:
-				score += 125
+			if opening:
+				if val in center_squares:
+					score += 250
+				elif val in outer_center_squares:
+					score += 225
 		elif piece == "R":
 			score += rook_value
-			if val in center_squares:
-				score += 40
-			elif val in outer_center_squares:
-				score += 40
+			if opening:
+				if val in center_squares:
+					score += 40
+				elif val in outer_center_squares:
+					score += 40
 		elif piece == "Q":
 			score += queen_value
-			if val in center_squares:
-				score += 40
-			elif val in outer_center_squares:
-				score += 40
+			if opening:
+				if val in center_squares:
+					score += 40
+				elif val in outer_center_squares:
+					score += 40
 		elif piece == "p":
 			score -= pawn_value
-			if val in center_squares:
-				score -= 175
-			elif val in outer_center_squares:
-				score -= 150
+			if opening:
+				if val in center_squares:
+					score -= 300
+				elif val in outer_center_squares:
+					score -= 150
 		elif piece == "n":
 			score -= knight_value
-			if val in center_squares:
-				score -= 300
-			elif val in outer_center_squares:
-				score -= 200
+			if opening:
+				if val in center_squares:
+					score -= 300
+				elif val in outer_center_squares:
+					score -= 450
 		elif piece == "b":
 			score -= bishop_value
-			if val in center_squares:
-				score -= 150
-			elif val in outer_center_squares:
-				score -= 120
+			if opening:
+				if val in center_squares:
+					score -= 250
+				elif val in outer_center_squares:
+					score -= 225
 		elif piece == "r":
 			score -= rook_value
-			if val in center_squares:
-				score -= 40
-			elif val in outer_center_squares:
-				score -= 40
+			if opening:
+				if val in center_squares:
+					score -= 40
+				elif val in outer_center_squares:
+					score -= 40
 		elif piece == "q":
 			score -= queen_value
-			if val in center_squares:
-				score -= 40
-			elif val in outer_center_squares:
-				score -= 40
+			if opening:
+				if val in center_squares:
+					score -= 40
+				elif val in outer_center_squares:
+					score -= 40
 
 	return score
 
