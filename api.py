@@ -1,3 +1,5 @@
+import timeit
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import time
@@ -59,13 +61,23 @@ async def make_move(player_move: str):
 	update_castling(move)
 	previous_move = move
 
+	start_time = timeit.default_timer()
+	depth = 4
+	original_move = "None"
+	depth_5_moves = True
 	# print(f"position: {position}, castling: {can_castle}")
-	move = search_moves.alphabeta(position, position_swapped, -99999, 99999, white=False, max_depth=3, previous_move=previous_move, can_castle=can_castle)
+	move = search_moves.alphabeta(position, position_swapped, -99999, 99999, white=False, max_depth=depth, previous_move=previous_move, can_castle=can_castle)
+	if (timeit.default_timer() - start_time) < 2 and depth_5_moves:
+		original_move = move
+		depth += 1
+		move = search_moves.alphabeta(position, position_swapped, -99999, 99999, white=False, max_depth=depth,
+									  previous_move=previous_move, can_castle=can_castle)
 	search_moves.move_position(position, position_swapped, move[1], move[2])
 	update_castling(move)
 	previous_move = move
 	
 	print(f"returned {move[1][1]}{7 - move[1][0]}{move[2][1]}{7 - move[2][0]}")
+	print(f"time taken: {timeit.default_timer() - start_time} on depth {depth} with move {move} and original move {original_move}")
 
 	return f"{move[1][1]}{7 - move[1][0]}{move[2][1]}{7 - move[2][0]}"
 

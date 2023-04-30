@@ -9,7 +9,7 @@ import random
 #if transform piece the moved piece changes into the new transform_piece
 def move_position(position, position_swapped, initial, final, transform_piece=None, depth=-1):
 	# print(f"initial:{position}")
-	print(f"{initial} and {final}, depth={depth}")
+	#print(f"{initial} and {final}, depth={depth}")
 
 	#captured piece, remove from position dictionary
 	if position_swapped.get(final) != None:
@@ -150,9 +150,9 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 		best_move = None
 
 		count = 0
-		print(f"current black parent search: {position}, can_castle: {can_castle}")
+		#print(f"current black parent search: {position}, can_castle: {can_castle}")
 		for move in legal_moves.legal_move_search(position, position_swapped, False, previous_move, can_castle[2], can_castle[3]):
-			print(f"black move found: {move}")
+			#print(f"black move found: {move}")
 			count += 1
 			#tries to get the piece that might be captured
 			old_piece = position_swapped.get(move[2])
