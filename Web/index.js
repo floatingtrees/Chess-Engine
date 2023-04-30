@@ -31,11 +31,11 @@ class Board {
 const initialPieces = [
 	//row is 0=a, etc
 	[0, 0, "wrook"], [1, 0, "wknight"], [2, 0, "wbishop"], [3, 0, "wqueen"], [4, 0, "wking"], [5, 0, "wbishop"], [6, 0, "wknight"], [7, 0, "wrook"],
-	//[0, 1, "wpawn"], [1, 1, "wpawn"], [2, 1, "wpawn"], [3, 1, "wpawn"], [4, 1, "wpawn"], [5, 1, "wpawn"], [6, 1, "wpawn"], [7, 1, "wpawn"],
+	[0, 1, "wpawn"], [1, 1, "wpawn"], [2, 1, "wpawn"], [3, 1, "wpawn"], [4, 1, "wpawn"], [5, 1, "wpawn"], [6, 1, "wpawn"], [7, 1, "wpawn"],
 	[0, 7, "brook"], [1, 7, "bknight"], [2, 7, "bbishop"], 
-	//[3, 7, "bqueen"], 
+	[3, 7, "bqueen"], 
 	[4, 7, "bking"], [5, 7, "bbishop"], [6, 7, "bknight"], [7, 7, "brook"],
-	//[0, 6, "bpawn"], [1, 6, "bpawn"], [2, 6, "bpawn"], [3, 6, "bpawn"], [4, 6, "bpawn"], [5, 6, "bpawn"], [6, 6, "bpawn"], [7, 6, "bpawn"],
+	[0, 6, "bpawn"], [1, 6, "bpawn"], [2, 6, "bpawn"], [3, 6, "bpawn"], [4, 6, "bpawn"], [5, 6, "bpawn"], [6, 6, "bpawn"], [7, 6, "bpawn"],
 ];
 
 //boolean value for loaded or not
@@ -383,31 +383,96 @@ function makeMoveBasedOnInput(input) {
 	makeMove(board.positions[parseInt(input.slice(0, 1))][parseInt(input.slice(1, 2))], 
 		board.positions[parseInt(input.slice(2, 3))][parseInt(input.slice(3, 4))])
 }
-let moves = `3041
-4737
-4132
-3746
-2002
-4655
-3233
-5565
-7077
-5702
-7767
-6556
+let moves = `6052
+6664
+5244
+5766
+4432
+6463
+4143
+3635
+5153
+6633
+3041
 3366
-5645
-5072
-4535
-6675
+1002
+6633
+4130
+3366
+2123
+2736
+3012
+3625
+7173
+1615
+2324
+1524
+4344
 3544
-6764
+5344
+3733
+5041
+3344
+3251
+4443
+3132
+4361
+7050
+6362
+5130
+2423
+3223
+1705
+4132
+0737
+2324
+3732
+1232
+6611
+2011
+6111
+3205
+1144
+4031
 4433
-7566
+3140
 3342
-6462
-4253
-6252`
+0541
+4222
+4131
+2200
+5054
+0010
+5444
+5655
+4445
+2536
+4542
+1000
+3134
+6261
+3407
+4756
+0734
+5647
+4232
+3603
+3437
+4756
+3726
+0010
+3233
+0330
+3330
+1013
+3031
+0605
+2662
+0504
+6212
+1312
+0112
+6160`
 
 visualize_moves()
 
@@ -418,7 +483,7 @@ function sleep(ms) {
 }
 async function visualize_moves (){
 	for (i of moves.split("\n")) {
-		await sleep(500);
+		await sleep(50);
 		makeMoveBasedOnInput(i);
 	}
 }

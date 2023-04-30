@@ -28,7 +28,7 @@ def rewind_position(position, position_swapped, initial, final, old_piece):
 
 
 last_position = None
-def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_depth=4, previous_move=("K", (-1, -1), (-1, -1))):
+def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_depth=3, previous_move=("K", (-1, -1), (-1, -1))):
 	if depth == max_depth:
 		return evaluate.evaluate(position)
 
@@ -41,7 +41,7 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 			old_piece = position_swapped.get(move[2])
 
 			#king taken, value is maximum
-			if old_piece != None and ("k" in old_piece or "K" in old_piece):
+			if old_piece != None and "k" in old_piece:
 				#print(f"black king taken, {old_piece}")
 				val = 90000
 				best_move = move
@@ -51,7 +51,7 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 				move_position(position, position_swapped, move[1], move[2])
 				
 				new_val = alphabeta(position, position_swapped, alpha, beta, False, depth + 1, max_depth)#, move)
-				if new_val > val:
+				if new_val >= val:
 					val = new_val
 					best_move = move
 
@@ -71,12 +71,18 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 	else:
 		val = 99999
 		best_move = None
+
+		count = 0
 		for move in legal_moves.legal_move_search(position, position_swapped, False, previous_move, False, False):
+			count += 1
 			#tries to get the piece that might be captured
 			old_piece = position_swapped.get(move[2])
 
+			if best_move == None:
+				best_move = move
+
 			#king taken, value is maximum
-			if old_piece != None and ("k" in old_piece or "K" in old_piece):
+			if old_piece != None and "K" in old_piece:
 				#print(f"white king taken, {old_piece}")
 				val = -90000
 				best_move = move
@@ -85,7 +91,7 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 				#make the move
 				move_position(position, position_swapped, move[1], move[2])
 				new_val = alphabeta(position, position_swapped, alpha, beta, True, depth + 1, max_depth)#, move)
-				if new_val < val:
+				if new_val <= val:
 					val = new_val
 					best_move = move
 
@@ -97,6 +103,8 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 			beta = min(beta, val)
 		
 		if depth == 0:
+			# if count == 1:
+			# 	print("forced move by black")
 			if best_move == None:
 				raise Exception(f"no legal moves available—-stalemate? Position: {position}")
 			return best_move
@@ -105,10 +113,10 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 #temporary move search
 if __name__ == "__main__":
 	position = {"r0" : (0, 0), "n0" : (0, 1), "b0" : (0, 2), 
-	#"q0":(0, 3), 
+	"q0":(0, 3), 
 	"k0" : (0, 4), "b1" : (0, 5), "n2": (0, 6), "r2":(0, 7), 
-			#"p0": (1, 0), "p1": (1, 1), "p2":(1, 2), "p3":(1, 3), "p4":(1, 4), "p5":(1, 5), "p6": (1, 6), "p7":(1, 7),
-			#"P0":(6, 0), "P1":(6, 1), "P2":(6, 2), "P3":(6, 3), "P4":(6, 4), "P5":(6, 5), "P6":(6, 6), "P7":(6, 7),
+			"p0": (1, 0), "p1": (1, 1), "p2":(1, 2), "p3":(1, 3), "p4":(1, 4), "p5":(1, 5), "p6": (1, 6), "p7":(1, 7),
+			"P0":(6, 0), "P1":(6, 1), "P2":(6, 2), "P3":(6, 3), "P4":(6, 4), "P5":(6, 5), "P6":(6, 6), "P7":(6, 7),
 			"R0":(7, 0), "N0":(7, 1), "B0":(7, 2), "Q0":(7, 3), "K0":(7, 4), "B1":(7, 5), "N1":(7, 6), "R1":(7, 7)}
 
 	position_swapped = dict([(value, key) for key, value in position.items()])
@@ -121,8 +129,9 @@ if __name__ == "__main__":
 	# print(f"after one rewind: {position}")
 
 	#take turns
-	for i in range(30):
+	for i in range(100):
 		try:
+			# print("before move: " + str(position))
 			move = alphabeta(position, position_swapped, -99999, 99999, white=(i % 2 == 0))
 			print(f"{move[1][1]}{7 - move[1][0]}{move[2][1]}{7 - move[2][0]}")
 			move_position(position, position_swapped, move[1], move[2])
