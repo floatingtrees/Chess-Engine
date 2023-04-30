@@ -138,7 +138,7 @@ def pins_and_checks_search(position, position_swapped, white, king_location_y, k
 
 	return pinned_pieces, in_check
 
-def check_only_from_square(position_swapped, search_square, white, in_check, row):
+def check_only_from_square(position_swapped, search_square, white, in_check, row, move_length):
 	if row and white: # no issues with this bloc
 		piece_check = "r"
 		piece_safe = 'b'
@@ -163,8 +163,12 @@ def check_only_from_square(position_swapped, search_square, white, in_check, row
 		if white:
 			if piece[0]  == piece_check or piece[0] == "q":
 				in_check.append((search_square, piece_check))
+			elif move_length == 1 and piece[0] == "k":
+				in_check.append((search_square, piece_check))
 		else:
 			if piece[0] == piece_check or piece[0] == "Q":
+				in_check.append((search_square, piece_check))
+			elif move_length == 1 and piece[0] == "K":
 				in_check.append((search_square, piece_check))
 		stop_searching_row = True
 	return in_check, stop_searching_row
@@ -183,7 +187,7 @@ def check_only_search(position, position_swapped, white, king_location_y, king_l
 			move_x = king_location_x + directions[1] * move_length
 			if 0 <= move_x <= 7 and 0 <= move_y <= 7:
 				search_square = (move_y, move_x) # row_search
-				in_check, stop_searching_row = check_only_from_square(position_swapped, search_square, white, in_check, row)
+				in_check, stop_searching_row = check_only_from_square(position_swapped, search_square, white, in_check, row, move_length)
 				if stop_searching_row:
 					break
 			else:
