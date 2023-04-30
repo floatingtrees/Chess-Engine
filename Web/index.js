@@ -30,13 +30,17 @@ class Board {
 
 const initialPieces = [
 	//row is 0=a, etc
-	[0, 0, "wrook"], [1, 0, "wknight"], [2, 0, "wbishop"], [3, 0, "wqueen"], [4, 0, "wking"], [5, 0, "wbishop"], [6, 0, "wknight"], [7, 0, "wrook"],
+	[0, 0, "wrook"], [1, 0, "wknight"], [2, 0, "wbishop"], [3, 0, "wqueen"],
+	[4, 0, "wking"], 
+	[5, 0, "wbishop"], [6, 0, "wknight"], [7, 0, "wrook"],
 	[0, 1, "wpawn"], [1, 1, "wpawn"], [2, 1, "wpawn"], [3, 1, "wpawn"], [4, 1, "wpawn"], [5, 1, "wpawn"], [6, 1, "wpawn"], [7, 1, "wpawn"],
 	[0, 7, "brook"], [1, 7, "bknight"], [2, 7, "bbishop"], 
 	[3, 7, "bqueen"], 
-	[4, 7, "bking"], [5, 7, "bbishop"], [6, 7, "bknight"], [7, 7, "brook"],
-	[0, 6, "bpawn"], [1, 6, "bpawn"], [2, 6, "bpawn"], [3, 6, "bpawn"], [4, 6, "bpawn"], [5, 6, "bpawn"], [6, 6, "bpawn"], [7, 6, "bpawn"],
-];
+ 	[4, 7, "bking"],
+ 	[5, 7, "bbishop"], [6, 7, "bknight"], [7, 7, "brook"],
+ 	[0, 6, "bpawn"],
+	[1, 6, "bpawn"], [2, 6, "bpawn"], [3, 6, "bpawn"], [4, 6, "bpawn"], [5, 6, "bpawn"], [6, 6, "bpawn"], [7, 6, "bpawn"],
+ ];
 
 //boolean value for loaded or not
 const piecesSrc = [
@@ -384,105 +388,105 @@ function makeMoveBasedOnInput(input) {
 		board.positions[parseInt(input.slice(2, 3))][parseInt(input.slice(3, 4))])
 }
 let moves = `6052
-6664
-5244
-5766
-4432
-6463
-4143
-7674
-5153
-6655
-7173
-5566
-1002
-6362
-0010
-4645
-1113
-3635
-2123
-2736
-1012
-3603
-0210
-3736
-3211
-0312
-0112
-1614
-2314
-6775
-3074
-7567
-7464
-4757
-1103
-0604
-1304
-0704
-6462
-3637
-6263
-6775
-6374
-7567
-7463
-6746
-6364
-5655
-6465
-7775
-6563
-5554
-6364
-5443
-4030
-1705
-3041
-3747
-4130
-7574
-6462
-0517
-5041
-7454
-6263
-6655
-1213
-0403
-4123
-0313
+6755
+1022
+3634
 3133
-1310
-7374
-5533
-3021
-1000
-7030
+1725
+2042
+2754
+5244
+3735
+4264
+7675
+6455
+6655
+4143
+3443
+4423
+1614
+6163
+5463
+3063
+5554
+6354
+1423
+5023
+3533
+2334
 3315
-2111
-4774
-6374
-1533
-3033
-5474
-1100
-7424
-3343
-4665
-2002
-2454
-4345
-5453
-2341
-5351
-1415
-5756
-4123
-5121
-2312
-2122`
+5456
+4737
+3443
+1511
+5634
+3727
+4031
+1115
+3445
+2717
+4525
+1525
+4325
+5766
+2234
+6644
+2122
+4645
+2507
+1707
+3413
+7757
+1325
+5752
+0010
+5251
+3130
+5157
+2223
+5737
+3020
+4422
+1012
+2231
+2010
+3727
+7030
+3153
+1202
+0716
+2533
+5344
+0212
+1607
+3325
+4471
+3070
+7153
+1202
+0716
+2533
+5344
+0212
+1607
+3325
+4433
+7075
+2767
+7545
+6760
+1021
+6067
+2120
+6760
+2021
+6067
+2120
+6760
+2021
+6067
+2120
+6760`
 
 visualize_moves()
 
@@ -493,7 +497,7 @@ function sleep(ms) {
 }
 async function visualize_moves (){
 	for (i of moves.split("\n")) {
-		await sleep(50);
+		await sleep(150);
 		makeMoveBasedOnInput(i);
 	}
 }
@@ -515,6 +519,11 @@ function makeMove(oldTile, newTile) {
 	}
 
 	newTile.piece = board.positions[oldTile.position[0]][oldTile.position[1]].piece;
+
+	//promotion
+	if (oldTile.piece.slice(1) == "pawn" && (y == 0 || y == 7)) {
+		newTile.piece = oldTile.piece.slice(0, 1) + "queen"
+	}
 
 	//update king position if king
 	if (newTile.piece == "wking") {

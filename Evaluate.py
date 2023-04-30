@@ -6,10 +6,15 @@ outer_center_squares = {(2, 2), (2, 3), (2, 4), (2, 5), (5, 5), (5, 4), (5, 3), 
 midgame_values = [126, 781, 825, 1276, 2538]
 endgame_values = [208, 854, 915, 1380, 2682]
 
+last_position = ""
 def evaluate(position):
 	score = 0
 	material_sum = 0
-	for key, val in position: # Ignore pawns for calculating game stage
+
+	global last_position
+	last_position = str(position)
+	# print(position.items())
+	for (key, val) in position.items(): # Ignore pawns for calculating game stage
 		piece = key[0]
 		if piece == "N":
 			material_sum += 781
@@ -42,8 +47,8 @@ def evaluate(position):
 		queen_value = midgame_values[4] + ((endgame_values[4]-midgame_values[4]) * (material_sum - 3915)) / 11343
 
 
-
-	for key, val in position:
+	# print(position)
+	for (key, val) in position.items():
 		piece = key[0]
 		if piece == "P":
 			score += pawn_value
