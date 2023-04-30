@@ -4,6 +4,7 @@ This is the file for the main recursive algorithm that looks through all possibl
 
 import legal_moves
 import evaluate
+import random
 
 #legal_moves.legal_move_search(position, position_swapped, white, previous_move, castling_kingside, castling_queenside):
 #NOTE: in the framework for alphabeta, position_swapped, previous_move, and castling_kingside and castling_queenside are ignored since they should be part of the position dictionary
@@ -46,12 +47,14 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 				val = 90000
 				best_move = move
 
+			
 			if val < 90000:
 				#make the move
 				move_position(position, position_swapped, move[1], move[2])
 				
+				rand = random.randint(0, 2)
 				new_val = alphabeta(position, position_swapped, alpha, beta, False, depth + 1, max_depth)#, move)
-				if new_val >= val:
+				if new_val >= val or rand == 0 and new_val == val:
 					val = new_val
 					best_move = move
 
@@ -91,7 +94,8 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 				#make the move
 				move_position(position, position_swapped, move[1], move[2])
 				new_val = alphabeta(position, position_swapped, alpha, beta, True, depth + 1, max_depth)#, move)
-				if new_val <= val:
+				rand = random.randint(0, 2)
+				if new_val < val or rand == 0 and new_val == val:
 					val = new_val
 					best_move = move
 
