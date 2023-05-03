@@ -47,7 +47,7 @@ def evaluate(position):
 		queen_value = midgame_values[4] + (endgame_values[4]-midgame_values[4]) * endgame_index
 		opening = False
 
-	promotion_value = queen_value / 1.5
+	promotion_value = bishop_value / 1.5
 
 	for (key, val) in position.items():
 		piece = key[0]
@@ -59,7 +59,7 @@ def evaluate(position):
 				elif val in outer_center_squares:
 					score += 150
 			else:
-				score += promotion_value / (val + 1) * (1-endgame_index)
+				score += promotion_value / (val[0] + 1) * (1-endgame_index)
 		elif piece == "N":
 			score += knight_value
 			if opening:
@@ -100,7 +100,7 @@ def evaluate(position):
 				elif val in outer_center_squares:
 					score -= 150
 			else:
-				score -= promotion_value / (8-val) * (1-endgame_index)
+				score -= promotion_value / (8-val[0]) * (1-endgame_index)
 		elif piece == "n":
 			score -= knight_value
 			if opening:
