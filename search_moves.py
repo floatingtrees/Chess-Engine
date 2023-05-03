@@ -12,13 +12,13 @@ def move_position(position, position_swapped, initial, final, transform_piece=No
 	# print(f"{initial} and {final}, depth={depth}")
 
 	#fancy-baguette-move
-	if (position_swapped[initial][0] == "P" and position_swapped.get(final) == None and initial[0] == 3 and final[0] == 2 and initial[1] != final[1]) or (position_swapped[initial][0] == "p" and position_swapped.get(final) == None and initial[0] == 4 and final[0] == 5 and initial[1] != final[1]):
+	if position_swapped.get(final) == None and initial[1] != final[1] and ((position_swapped[initial][0] == "P" and initial[0] == 3 and final[0] == 2) or (position_swapped[initial][0] == "p" and initial[0] == 4 and final[0] == 5)):
 		# raise Exception("fancy french time!")
 		del position[position_swapped[(initial[0], final[1])]]
 		del position_swapped[(initial[0], final[1])]
 	
 	#fancy-baguette-rewind
-	elif captured_piece == None and ((position_swapped[initial][0] == "P" and initial[0] == 2 and final[0] == 3 and initial[1] != final[1]) or (position_swapped[initial][0] == "p" and captured_piece == None and initial[0] == 5 and final[0] == 4 and initial[1] != final[1])):
+	elif captured_piece == None and initial[1] != final[1] and ((position_swapped[initial][0] == "P" and initial[0] == 2 and final[0] == 3) or (position_swapped[initial][0] == "p" and initial[0] == 5 and final[0] == 4)):
 		if position_swapped[initial][0] == "P":
 			#we're using the fact that pawn p1 is on x=1 and can't have moved files
 			position["p" + str(initial[1])] = (initial[0] + 1, initial[1])
@@ -102,11 +102,21 @@ def rewind_position(position, position_swapped, initial, final, old_piece, old_o
 		position_swapped[initial] = old_piece
 
 last_position = None
-def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_depth=4, previous_moves=[("K", (-1, -1), (-1, -1))], can_castle=[True, True, True, True]): #castling: white king, white queen, black king, black queen
+def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_depth=4, previous_moves=[("K", (-1, -1), (-1, -1))], can_castle=[True, True, True, True], sort=False):  # castling: white king, white queen, black king, black queen
 	if depth == max_depth:
 		return evaluate.evaluate(position)
-	
-	#stalemate
+
+	if not sort and depth == 0:
+		move_dict = alphabeta(position, position_swapped, alpha, beta, white, max_depth=2, previous_moves=previous_moves, can_castle=can_castle, sort=True)
+		if move_dict == 0:
+			raise Exception("stalemate")
+		print(move_dict)
+		sorted_position = [x[0] for x in sorted(move_dict.items(), key=lambda x: x[1], reverse=white)]
+		print(sorted_position)
+	if sort:
+		value_list = {}
+
+	# stalemate
 	if len(previous_moves) >= 6 and previous_moves[-1] == previous_moves[-5] and previous_moves[-2] == previous_moves[-6]:
 		# print("stalemate!")
 		return 0
@@ -115,8 +125,12 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 	elif white:
 		val = -99999
 		best_move = None
+		if not sort and depth == 0:
+			legal_move_list = sorted_position
+		else:
+			legal_move_list = legal_moves.legal_move_search(position, position_swapped, True, previous_moves[-1], can_castle[0], can_castle[1])
 		# print(f"current white parent search: {position}, can_castle: {can_castle}")
-		for move in legal_moves.legal_move_search(position, position_swapped, True, previous_moves[-1], can_castle[0], can_castle[1]):
+		for move in legal_move_list:
 			# print(f"white move found: {move}")
 			#tries to get the piece that might be captured
 			old_piece = position_swapped.get(move[2])
@@ -128,6 +142,8 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 				#print(f"black king taken, {old_piece}")
 				val = 95000 - depth
 				best_move = move
+				if sort:
+					value_list[move] = val
 			
 			if val < 90000:
 				#if just castled when rewinding castling needs to be set to true again
@@ -146,12 +162,16 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 				#make the move
 				move_position(position, position_swapped, move[1], move[2], depth=depth)
 				previous_moves.append(move)
-				
-				rand = random.randint(0, 2)
+
 				new_val = alphabeta(position, position_swapped, alpha, beta, False, depth + 1, max_depth, previous_moves, can_castle)
-				if new_val >= val or rand == 0 and new_val == val:
-					val = new_val
+				if sort:
+					value_list[move] = new_val
 					best_move = move
+				else:
+					rand = random.randint(0, 2)
+					if new_val >= val or rand == 0 and new_val == val:
+						val = new_val
+						best_move = move
 
 				# print(f"rewinding {move[2]}, {move[1]}")
 				#retract the move
@@ -170,6 +190,8 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 		if depth == 0:
 			if best_move == None:
 				raise Exception(f"no legal moves available—-stalemate? Position: {position}")
+			if sort:
+				return value_list
 			return best_move
 		elif best_move == None:
 			#stalemated
@@ -179,11 +201,13 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 		val = 99999
 		best_move = None
 
-		count = 0
-		# print(f"current black parent search: {position}, can_castle: {can_castle}")
-		for move in legal_moves.legal_move_search(position, position_swapped, False, previous_moves[-1], can_castle[2], can_castle[3]):
-			# print(f"black move found: {move}")
-			count += 1
+		if not sort and depth == 0:
+			legal_move_list = sorted_position
+		else:
+			legal_move_list = legal_moves.legal_move_search(position, position_swapped, False, previous_moves[-1], can_castle[2], can_castle[3])
+		#print(f"current black parent search: {position}, can_castle: {can_castle}")
+		for move in legal_move_list:
+			#print(f"black move found: {move}")
 			#tries to get the piece that might be captured
 			old_piece = position_swapped.get(move[2])
 			#pre-promotion pawn
@@ -197,6 +221,8 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 				#print(f"white king taken, {old_piece}")
 				val = -95000 + depth
 				best_move = move
+				if sort:
+					value_list[move] = val
 
 			if val > -90000:
 				#if just castled when rewinding castling needs to be set to true again
@@ -216,10 +242,14 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 				# print(previous_moves)
 				previous_moves.append(move)
 				new_val = alphabeta(position, position_swapped, alpha, beta, True, depth + 1, max_depth, previous_moves, can_castle)
-				rand = random.randint(0, 2)
-				if new_val < val or rand == 0 and new_val == val:
-					val = new_val
+				if sort:
+					value_list[move] = new_val
 					best_move = move
+				else:
+					rand = random.randint(0, 2)
+					if new_val < val or rand == 0 and new_val == val:
+						val = new_val
+						best_move = move
 
 				# print(f"rewinding {move[2]}, {move[1]}")
 				#retract the move
@@ -237,6 +267,8 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 		if depth == 0:
 			if best_move == None:
 				raise Exception(f"no legal moves available—-stalemate? Position: {position}")
+			if sort:
+				return value_list
 			return best_move
 		elif best_move == None:
 			#stalemated
@@ -266,7 +298,6 @@ if __name__ == "__main__":
 	previous_moves = [("K", (-1, -1), (-1, -1))]
 	# can_castle = [True, True, True, True]
 	can_castle = [False, False, False, False]
-
 
 	# take turns
 	for i in range(200):

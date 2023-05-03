@@ -595,7 +595,7 @@ let moves = `4143
 3757
 2414`
 
-visualize_moves()
+// visualize_moves()
 
 function sleep(ms) {
   return new Promise(

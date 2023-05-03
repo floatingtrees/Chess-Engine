@@ -62,7 +62,7 @@ async def make_move(player_move: str):
 	previous_moves.append(move)
 
 	start_time = timeit.default_timer()
-	depth = 4
+	depth = 5
 	original_move = "None"
 	depth_5_moves = False
 	# print(f"position: {position}, castling: {can_castle}")
