@@ -7,15 +7,36 @@ import evaluate
 import random
 
 #if transform piece the moved piece changes into the new transform_piece
-def move_position(position, position_swapped, initial, final, transform_piece=None, depth=-1):
+def move_position(position, position_swapped, initial, final, transform_piece=None, captured_piece=None, depth=-1):
 	# print(f"initial:{position}")
-	#print(f"{initial} and {final}, depth={depth}")
+	# print(f"{initial} and {final}, depth={depth}")
+
+	#fancy-baguette-move
+	if (position_swapped[initial][0] == "P" and position_swapped.get(final) == None and initial[0] == 3 and final[0] == 2 and initial[1] != final[1]) or (position_swapped[initial][0] == "p" and position_swapped.get(final) == None and initial[0] == 4 and final[0] == 5 and initial[1] != final[1]):
+		# raise Exception("fancy french time!")
+		del position[position_swapped[(initial[0], final[1])]]
+		del position_swapped[(initial[0], final[1])]
+	
+	#fancy-baguette-rewind
+	elif captured_piece == None and ((position_swapped[initial][0] == "P" and initial[0] == 2 and final[0] == 3 and initial[1] != final[1]) or (position_swapped[initial][0] == "p" and captured_piece == None and initial[0] == 5 and final[0] == 4 and initial[1] != final[1])):
+		if position_swapped[initial][0] == "P":
+			#we're using the fact that pawn p1 is on x=1 and can't have moved files
+			position["p" + str(initial[1])] = (initial[0] + 1, initial[1])
+			position_swapped[(initial[0] + 1, initial[1])] = "p" + str(initial[1])
+		else: #black pawn
+			position["P" + str(initial[1])] = (initial[0] - 1, initial[1])
+			position_swapped[(initial[0] - 1, initial[1])] = "P" + str(initial[1])
+		# print("its rewind time")
+
+		# assert position_swapped == dict([(value, key) for key, value in position.items()]), f"assertion: position={position}, reversed={position_swapped}, initial={initial}, final={final}, captured_piece={captured_piece}"
 
 	#captured piece, remove from position dictionary
-	if position_swapped.get(final) != None:
-		del position[position_swapped.get(final)]
-
-
+	try:
+		if position_swapped.get(final) != None:
+			# print(position_swapped)
+			del position[position_swapped.get(final)]
+	except Exception as e:
+		raise Exception(f"error: {position} and \n{position_swapped}, initial={initial}, final={final}")
 
 	#autoqueen
 	if (position_swapped[initial][0] == "p" or position_swapped[initial][0] == "P") and (final[0] == 0 or final[0] == 7):
@@ -70,28 +91,32 @@ def move_position(position, position_swapped, initial, final, transform_piece=No
 		position[piece] = final
 		position_swapped[final] = piece
 		del position_swapped[initial]
+
 	# print(f"final: {position}")
 
 #if old_piece is not None, the initial position's old_piece is put back
 def rewind_position(position, position_swapped, initial, final, old_piece, old_other_piece=None):
-	move_position(position, position_swapped, initial, final, old_other_piece)
+	move_position(position, position_swapped, initial, final, captured_piece=old_piece, transform_piece=old_other_piece)
 	if old_piece != None:
 		position[old_piece] = initial
 		position_swapped[initial] = old_piece
 
-
-
 last_position = None
-def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_depth=4, previous_move=("K", (-1, -1), (-1, -1)), can_castle=[True, True, True, True]): #castling: white king, white queen, black king, black queen
+def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_depth=4, previous_moves=[("K", (-1, -1), (-1, -1))], can_castle=[True, True, True, True]): #castling: white king, white queen, black king, black queen
 	if depth == max_depth:
 		return evaluate.evaluate(position)
+	
+	#stalemate
+	if len(previous_moves) >= 6 and previous_moves[-1] == previous_moves[-5] and previous_moves[-2] == previous_moves[-6]:
+		# print("stalemate!")
+		return 0
 
 	#white is maximize
-	if white:
+	elif white:
 		val = -99999
 		best_move = None
 		# print(f"current white parent search: {position}, can_castle: {can_castle}")
-		for move in legal_moves.legal_move_search(position, position_swapped, True, previous_move, can_castle[0], can_castle[1]):
+		for move in legal_moves.legal_move_search(position, position_swapped, True, previous_moves[-1], can_castle[0], can_castle[1]):
 			# print(f"white move found: {move}")
 			#tries to get the piece that might be captured
 			old_piece = position_swapped.get(move[2])
@@ -120,9 +145,10 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 
 				#make the move
 				move_position(position, position_swapped, move[1], move[2], depth=depth)
+				previous_moves.append(move)
 				
 				rand = random.randint(0, 2)
-				new_val = alphabeta(position, position_swapped, alpha, beta, False, depth + 1, max_depth, move, can_castle)
+				new_val = alphabeta(position, position_swapped, alpha, beta, False, depth + 1, max_depth, previous_moves, can_castle)
 				if new_val >= val or rand == 0 and new_val == val:
 					val = new_val
 					best_move = move
@@ -130,6 +156,7 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 				# print(f"rewinding {move[2]}, {move[1]}")
 				#retract the move
 				rewind_position(position, position_swapped, move[2], move[1], old_piece, old_other_piece)
+				previous_moves.pop()
 
 				#rewind castle
 				can_castle[0] = delta_king_castle
@@ -144,15 +171,18 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 			if best_move == None:
 				raise Exception(f"no legal moves available—-stalemate? Position: {position}")
 			return best_move
+		elif best_move == None:
+			#stalemated
+			return 0
 		return val
 	else:
 		val = 99999
 		best_move = None
 
 		count = 0
-		#print(f"current black parent search: {position}, can_castle: {can_castle}")
-		for move in legal_moves.legal_move_search(position, position_swapped, False, previous_move, can_castle[2], can_castle[3]):
-			#print(f"black move found: {move}")
+		# print(f"current black parent search: {position}, can_castle: {can_castle}")
+		for move in legal_moves.legal_move_search(position, position_swapped, False, previous_moves[-1], can_castle[2], can_castle[3]):
+			# print(f"black move found: {move}")
 			count += 1
 			#tries to get the piece that might be captured
 			old_piece = position_swapped.get(move[2])
@@ -183,7 +213,9 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 
 				#make the move
 				move_position(position, position_swapped, move[1], move[2], depth=depth)
-				new_val = alphabeta(position, position_swapped, alpha, beta, True, depth + 1, max_depth, move, can_castle)
+				# print(previous_moves)
+				previous_moves.append(move)
+				new_val = alphabeta(position, position_swapped, alpha, beta, True, depth + 1, max_depth, previous_moves, can_castle)
 				rand = random.randint(0, 2)
 				if new_val < val or rand == 0 and new_val == val:
 					val = new_val
@@ -192,6 +224,7 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 				# print(f"rewinding {move[2]}, {move[1]}")
 				#retract the move
 				rewind_position(position, position_swapped, move[2], move[1], old_piece, old_other_piece)
+				previous_moves.pop()
 
 				#rewind castle
 				can_castle[2] = delta_king_castle
@@ -202,11 +235,12 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 			beta = min(beta, val)
 		
 		if depth == 0:
-			# if count == 1:
-			# 	print("forced move by black")
 			if best_move == None:
 				raise Exception(f"no legal moves available—-stalemate? Position: {position}")
 			return best_move
+		elif best_move == None:
+			#stalemated
+			return 0
 		return val
 
 #temporary move search
@@ -215,29 +249,39 @@ if __name__ == "__main__":
 			"p0": (1, 0), "p1": (1, 1), "p2":(1, 2), "p3":(1, 3), "p4":(1, 4), "p5":(1, 5), "p6": (1, 6), "p7":(1, 7),
 			"P0":(6, 0), "P1":(6, 1), "P2":(6, 2), "P3":(6, 3), "P4":(6, 4), "P5":(6, 5), "P6":(6, 6), "P7":(6, 7),
 			"R0":(7, 0), "N0":(7, 1), "B0":(7, 2), "Q0":(7, 3), "K0":(7, 4), "B1":(7, 5), "N1":(7, 6), "R1":(7, 7)}
-	# position = {"r0" : (0, 0), "k0" : (0, 4), "r2":(0, 7), 
-	# 		"R0":(7, 0), "K0":(7, 4), "R1":(7, 7)}
+	# position = {"P0" : (4, 0), "k0" : (0, 4), 
+	# 		"p1":(4, 1), "K0":(7, 4)}
 
 	position_swapped = dict([(value, key) for key, value in position.items()])
 
 	# testing
 	# old_piece = None#position_swapped.get((0, 4))
 	# old_other_piece = None#position_swapped.get((1, 0))
-	# print(f"before moving: {position}")
-	# move_position(position, position_swapped, (7, 4), (7, 2))
-	# print(f"after one move: {position}")
-	# rewind_position(position, position_swapped, (7, 2), (7, 4), old_piece, old_other_piece)
-	# print(f"after one rewind: {position}")
+	# print(f"before moving: {position} and {position_swapped}")
+	# move_position(position, position_swapped, (4, 1), (5, 0))
+	# print(f"after one move: {position} and {position_swapped}")
+	# rewind_position(position, position_swapped, (5, 0), (4, 1), old_piece, old_other_piece)
+	# print(f"after one rewind: {position} and {position_swapped}")
 
-	previous_move = ("K", (-1, -1), (-1, -1))
-	can_castle = [True, True, True, True]
+	previous_moves = [("K", (-1, -1), (-1, -1))]
+	# can_castle = [True, True, True, True]
+	can_castle = [False, False, False, False]
+
 
 	# take turns
 	for i in range(200):
 		# try:
 			# print("before move: " + str(position))
+		# print(previous_moves)
+		#pass
 
-		move = alphabeta(position, position_swapped, -99999, 99999, white=(i % 2 == 0), max_depth=3, can_castle=can_castle)
+		depth = 3
+		if len(position) < 5:
+			depth = 5
+		elif len(position) < 9:
+			depth = 4
+
+		move = alphabeta(position, position_swapped, -99999, 99999, white=(i % 2 == 0), max_depth=depth, can_castle=can_castle, previous_moves=previous_moves)
 		if move[0][0] == "r" and move[1] == (0, 7):
 			can_castle[2] = False
 		elif move[0][0] == "r" and move[1] == (0, 0):
@@ -255,6 +299,7 @@ if __name__ == "__main__":
 
 		print(f"{move[1][1]}{7 - move[1][0]}{move[2][1]}{7 - move[2][0]}")
 		move_position(position, position_swapped, move[1], move[2])
+		previous_moves.append(move)
 
 		# except Exception as e:
 		# 	print(e)
