@@ -31,20 +31,23 @@ def evaluate(position):
 	if material_sum > 15258:
 		pawn_value, knight_value, bishop_value, rook_value, queen_value = midgame_values
 		opening = True
+		endgame_index = 0
+
 	elif material_sum < 3915:
 		pawn_value, knight_value, bishop_value, rook_value, queen_value = endgame_values
 		opening = False
+		endgame_index = 1
 	else:
+		endgame_index = (material_sum - 3915) / 11343
 		values = []
-		pawn_value = midgame_values[0] + ((endgame_values[0]-midgame_values[0]) * (material_sum - 3915)) / 11343
-		knight_value = midgame_values[1] + ((endgame_values[1]-midgame_values[1]) * (material_sum - 3915)) / 11343
-		bishop_value = midgame_values[2] + ((endgame_values[2]-midgame_values[2]) * (material_sum - 3915)) / 11343
-
-		rook_value = midgame_values[3] + ((endgame_values[3]-midgame_values[3]) * (material_sum - 3915)) / 11343
-		queen_value = midgame_values[4] + ((endgame_values[4]-midgame_values[4]) * (material_sum - 3915)) / 11343
+		pawn_value = midgame_values[0] + (endgame_values[0]-midgame_values[0]) * endgame_index
+		knight_value = midgame_values[1] + (endgame_values[1]-midgame_values[1]) * endgame_index
+		bishop_value = midgame_values[2] + (endgame_values[2]-midgame_values[2]) * endgame_index
+		rook_value = midgame_values[3] + (endgame_values[3]-midgame_values[3]) * endgame_index
+		queen_value = midgame_values[4] + (endgame_values[4]-midgame_values[4]) * endgame_index
 		opening = False
 
-
+	promotion_value = queen_value / 1.5
 
 	for (key, val) in position.items():
 		piece = key[0]
@@ -55,6 +58,8 @@ def evaluate(position):
 					score += 300
 				elif val in outer_center_squares:
 					score += 150
+			else:
+				score += promotion_value / (val + 1) * (1-endgame_index)
 		elif piece == "N":
 			score += knight_value
 			if opening:
@@ -94,6 +99,8 @@ def evaluate(position):
 					score -= 300
 				elif val in outer_center_squares:
 					score -= 150
+			else:
+				score -= promotion_value / (8-val) * (1-endgame_index)
 		elif piece == "n":
 			score -= knight_value
 			if opening:
@@ -126,6 +133,14 @@ def evaluate(position):
 					score -= 40
 				elif val in outer_center_squares:
 					score -= 40
+		elif piece == "k":
+			if opening:
+				if val == (0, 6) or val == (0, 2):
+					score -= 100
+		elif piece == "K":
+			if opening:
+				if val == (7, 6) or val == (7, 2):
+					score += 100
 
 	return score
 
