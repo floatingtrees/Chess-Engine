@@ -146,7 +146,7 @@ def evaluate(position):
 				if val == (7, 6) or val == (7, 2):
 					score += 100
 
-	return score
+	return int(score)
 
 
 def time_test(starting_position):
