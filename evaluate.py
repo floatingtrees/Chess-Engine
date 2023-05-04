@@ -9,9 +9,10 @@ midgame_values = [126, 781, 825, 1276, 2538]
 endgame_values = [208, 854, 915, 1380, 2682]
 
 def evaluate(position):
+	items = position.items()
 	score = 0
 	material_sum = 0
-	for (key, val) in position.items(): # Ignore pawns for calculating game stage
+	for (key, val) in items: # Ignore pawns for calculating game stage
 		material_sum += material_dict[key[0]]
 		# piece = key[0]
 		# if piece == "N":
@@ -52,7 +53,7 @@ def evaluate(position):
 
 	promotion_value = bishop_value / 1.5
 
-	for (key, val) in position.items():
+	for (key, val) in items:
 		piece = key[0]
 		if piece == "P":
 			score += pawn_value
