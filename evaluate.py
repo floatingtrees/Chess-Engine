@@ -3,6 +3,8 @@ global center_squares
 center_squares = {(3, 3), (3, 4), (4, 3), (4, 4)}
 outer_center_squares = {(2, 2), (2, 3), (2, 4), (2, 5), (5, 5), (5, 4), (5, 3), (5, 2), (3, 2), (3, 5), (4, 2), (4, 2)}
 
+material_dict = {"P": 0, "N": 781, "B": 825, "R": 1276, "Q": 2538, "K": 0, "p": 0, "n": 781, "b": 825, "r": 1276, "q": 2538, "k": 0}
+
 midgame_values = [126, 781, 825, 1276, 2538]
 endgame_values = [208, 854, 915, 1380, 2682]
 
@@ -10,23 +12,24 @@ def evaluate(position):
 	score = 0
 	material_sum = 0
 	for (key, val) in position.items(): # Ignore pawns for calculating game stage
-		piece = key[0]
-		if piece == "N":
-			material_sum += 781
-		elif piece == "B":
-			material_sum += 825
-		elif piece == "R":
-			material_sum += 1276
-		elif piece == "Q":
-			material_sum += 2538
-		elif piece == "n":
-			material_sum += 781
-		elif piece == "b":
-			material_sum += 825
-		elif piece == "r":
-			material_sum += 1276
-		elif piece == "q":
-			material_sum += 2538
+		material_sum += material_dict[key[0]]
+		# piece = key[0]
+		# if piece == "N":
+		# 	material_sum += 781
+		# elif piece == "B":
+		# 	material_sum += 825
+		# elif piece == "R":
+		# 	material_sum += 1276
+		# elif piece == "Q":
+		# 	material_sum += 2538
+		# elif piece == "n":
+		# 	material_sum += 781
+		# elif piece == "b":
+		# 	material_sum += 825
+		# elif piece == "r":
+		# 	material_sum += 1276
+		# elif piece == "q":
+		# 	material_sum += 2538
 
 	if material_sum > 15258:
 		pawn_value, knight_value, bishop_value, rook_value, queen_value = midgame_values
