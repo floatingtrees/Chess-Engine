@@ -6,6 +6,9 @@ import legal_moves
 import evaluate
 import random
 
+import primitive_evaluate
+
+
 #if transform piece the moved piece changes into the new transform_piece
 def move_position(position, position_swapped, initial, final, transform_piece=None, captured_piece=None, depth=-1):
 	# print(f"initial:{position}")
@@ -104,7 +107,7 @@ def rewind_position(position, position_swapped, initial, final, old_piece, old_o
 last_position = None
 def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_depth=4, previous_moves=[("K", (-1, -1), (-1, -1))], can_castle=[True, True, True, True], sort=False):  # castling: white king, white queen, black king, black queen
 	if depth == max_depth:
-		return evaluate.evaluate(position)
+		return primitive_evaluate.evaluate(position)
 
 	if not sort and depth == 0:
 		move_dict = alphabeta(position, position_swapped, alpha, beta, white, max_depth=2, previous_moves=previous_moves, can_castle=can_castle, sort=True)
