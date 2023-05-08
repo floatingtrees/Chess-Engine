@@ -1,7 +1,7 @@
 # Chess-Engine (Cyan IDE)
 Our open source recreation of mainstream chess algorithms, including a frontend client in JavaScript and a backend server w/ algorithm in python.
 
-Some common variables: Position is a dictionary that maps pieces to their locations, and position_swapped is a dictionary that maps a location to a piece. The locations are stored as (y, x), where y is the piece's distance from the 8th rank and x is the piece's distance from the a file (eg. e4 would be recorded as (4, 4)). Legal_moves is a list of all legal moves in a given position, and moves as stored as tuples containing (piece_type, starting_square, destination_square).  
+Some common variables: Position is a dictionary that maps pieces to their locations, and position_swapped is a dictionary that maps a location to a piece. The locations are stored as (y, x), where y is the piece's distance from the 8th rank and x is the piece's distance from the a file (eg. e4 would be recorded as (4, 4), and a8 would be (0, 7)). Legal_moves is a list of all legal moves in a given position, and moves as stored as tuples containing (piece_type, starting_square, destination_square).  
 
 Things to figure out: [Alpha-beta pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning), 
 making an [evaluation function](https://en.wikipedia.org/wiki/Evaluation_function), 
