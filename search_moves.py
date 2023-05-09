@@ -5,48 +5,68 @@ This is the file for the main recursive algorithm that looks through all possibl
 import legal_moves
 import evaluate
 import random
-
 import primitive_evaluate
 
 
 #if transform piece the moved piece changes into the new transform_piece
-def move_position(position, position_swapped, initial, final, transform_piece=None, captured_piece=None, depth=-1):
+def move_position(position, position_swapped, initial, final, transform_piece=None, captured_piece=None, french_captured=None, depth=-1):
+	french_capture = None
+	french_captured_position = None
+
 	# print(f"initial:{position}")
 	# print(f"{initial} and {final}, depth={depth}")
 
 	#fancy-baguette-move
 	if position_swapped.get(final) == None and initial[1] != final[1] and ((position_swapped[initial][0] == "P" and initial[0] == 3 and final[0] == 2) or (position_swapped[initial][0] == "p" and initial[0] == 4 and final[0] == 5)):
-		# raise Exception("fancy french time!")
+		french_capture = position_swapped[(initial[0], final[1])]
+		french_captured_position = (initial[0], final[1])
+
+		# raise Exception(f"fancy french time! {(french_capture, french_captured_position)}")
+		
 		del position[position_swapped[(initial[0], final[1])]]
 		del position_swapped[(initial[0], final[1])]
+
+		assert position_swapped == dict([(value, key) for key, value in position.items()]), f"assertion: position={position}, reversed={position_swapped}, initial={initial}, final={final}, captured_piece={captured_piece}, french={french_captured}"
 	
-	#fancy-baguette-rewind
+	# elif french_captured != (None, None) and french_captured != None:
 	elif captured_piece == None and initial[1] != final[1] and ((position_swapped[initial][0] == "P" and initial[0] == 2 and final[0] == 3) or (position_swapped[initial][0] == "p" and initial[0] == 5 and final[0] == 4)):
+		#NOTE: in order for the pawns to work without having to be named specifically 0-7 in the correct order, french_capture was made
+		# position[french_captured[0]] = french_captured[1]
+		# position_swapped[french_captured[1]] = french_captured[0]
+
 		if position_swapped[initial][0] == "P":
 			#we're using the fact that pawn p1 is on x=1 and can't have moved files
 			position["p" + str(initial[1])] = (initial[0] + 1, initial[1])
 			position_swapped[(initial[0] + 1, initial[1])] = "p" + str(initial[1])
+
+			
 		else: #black pawn
 			position["P" + str(initial[1])] = (initial[0] - 1, initial[1])
 			position_swapped[(initial[0] - 1, initial[1])] = "P" + str(initial[1])
 		# print("its rewind time")
 
-		# assert position_swapped == dict([(value, key) for key, value in position.items()]), f"assertion: position={position}, reversed={position_swapped}, initial={initial}, final={final}, captured_piece={captured_piece}"
+		assert position_swapped == dict([(value, key) for key, value in position.items()]), f"assertion: position={position}, reversed={position_swapped}, initial={initial}, final={final}, captured_piece={captured_piece}, french={french_captured}"
 
 	#captured piece, remove from position dictionary
-	try:
-		if position_swapped.get(final) != None:
-			# print(position_swapped)
-			del position[position_swapped.get(final)]
-	except Exception as e:
-		raise Exception(f"error: {position} and \n{position_swapped}, initial={initial}, final={final}")
+	# try:
+	if position_swapped.get(final) != None:
+		# print(position_swapped)
+		del position[position_swapped.get(final)]
+		del position_swapped[final]
+
+	# except Exception as e:
+	# 	raise Exception(f"error: {position} and \n{position_swapped}, initial={initial}, final={final}")
 
 	#autoqueen
-	if (position_swapped[initial][0] == "p" or position_swapped[initial][0] == "P") and (final[0] == 0 or final[0] == 7):
-		if position_swapped[initial][0] == "p":
-			transform_piece = "q" + position_swapped[initial]
-		else:
-			transform_piece = "Q" + position_swapped[initial]
+	try:
+		if (position_swapped[initial][0] == "p" or position_swapped[initial][0] == "P") and (final[0] == 0 or final[0] == 7):
+			if position_swapped[initial][0] == "p":
+				transform_piece = "q" + position_swapped[initial]
+			else:
+				transform_piece = "Q" + position_swapped[initial]
+	except Exception as e:
+		raise Exception(f"error 2: {position} and \n{position_swapped}, initial={initial}, final={final}")
+
 
 	#castling
 	if abs(final[1] - initial[1]) == 2 and position_swapped[initial][0] == "k" or position_swapped[initial][0] == "K":
@@ -94,12 +114,13 @@ def move_position(position, position_swapped, initial, final, transform_piece=No
 		position[piece] = final
 		position_swapped[final] = piece
 		del position_swapped[initial]
-
+	
+	return (french_capture, french_captured_position)
 	# print(f"final: {position}")
 
 #if old_piece is not None, the initial position's old_piece is put back
-def rewind_position(position, position_swapped, initial, final, old_piece, old_other_piece=None):
-	move_position(position, position_swapped, initial, final, captured_piece=old_piece, transform_piece=old_other_piece)
+def rewind_position(position, position_swapped, initial, final, old_piece, old_other_piece=None, french_captured=None):
+	move_position(position, position_swapped, initial, final, captured_piece=old_piece, transform_piece=old_other_piece, french_captured=french_captured)
 	if old_piece != None:
 		position[old_piece] = initial
 		position_swapped[initial] = old_piece
@@ -113,9 +134,9 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 		move_dict = alphabeta(position, position_swapped, alpha, beta, white, max_depth=2, previous_moves=previous_moves, can_castle=can_castle, sort=True)
 		if move_dict == 0:
 			raise Exception("stalemate")
-		print(move_dict)
+		# print(move_dict)
 		sorted_position = [x[0] for x in sorted(move_dict.items(), key=lambda x: x[1], reverse=white)]
-		print(sorted_position)
+		# print(sorted_position)
 	if sort:
 		value_list = {}
 
@@ -163,7 +184,7 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 					can_castle[1] = False
 
 				#make the move
-				move_position(position, position_swapped, move[1], move[2], depth=depth)
+				french_captured = move_position(position, position_swapped, move[1], move[2], depth=depth)
 				previous_moves.append(move)
 
 				new_val = alphabeta(position, position_swapped, alpha, beta, False, depth + 1, max_depth, previous_moves, can_castle)
@@ -178,7 +199,7 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 
 				# print(f"rewinding {move[2]}, {move[1]}")
 				#retract the move
-				rewind_position(position, position_swapped, move[2], move[1], old_piece, old_other_piece)
+				rewind_position(position, position_swapped, move[2], move[1], old_piece, old_other_piece, french_captured=french_captured)
 				previous_moves.pop()
 
 				#rewind castle
@@ -241,7 +262,7 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 					can_castle[3] = False
 
 				#make the move
-				move_position(position, position_swapped, move[1], move[2], depth=depth)
+				french_captured = move_position(position, position_swapped, move[1], move[2], depth=depth)
 				# print(previous_moves)
 				previous_moves.append(move)
 				new_val = alphabeta(position, position_swapped, alpha, beta, True, depth + 1, max_depth, previous_moves, can_castle)
@@ -256,7 +277,7 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 
 				# print(f"rewinding {move[2]}, {move[1]}")
 				#retract the move
-				rewind_position(position, position_swapped, move[2], move[1], old_piece, old_other_piece)
+				rewind_position(position, position_swapped, move[2], move[1], old_piece, old_other_piece, french_captured=french_captured)
 				previous_moves.pop()
 
 				#rewind castle

@@ -8,7 +8,11 @@ canvas.onselectstart = function () { return false; }
 
 const lightTile = "#EDE7DD";
 const darkTile = "#70AF73";
+const lightHightlightedTile = "#F6DD8D";
 const highlightedTile = "#F2B64E";
+
+var lastMove = [-1, -1];
+var currentMove = [-1, -1];
 
 class Tile {
 	constructor(position, piece) {
@@ -372,13 +376,19 @@ function drawBoard() {
 	for (let i = 0; i < 8; i++) {
 		for (let j = 0; j < 8; j++) {
 			//NOTE: from white's perspective
-			if ((i + j) % 2 == 0) {
-				canvasCtx.fillStyle = lightTile;
-			} else {
+			if (i == lastMove[0] && j == lastMove[1] || 
+				i == currentMove[0] && j == currentMove[1] ||
+				selectedTile[0] == i && selectedTile[1] == 7 - j) {
+				//opponent last move should show color
+				if ((i + j) % 2 == 0) {
+					canvasCtx.fillStyle = highlightedTile;
+				} else {
+					canvasCtx.fillStyle = lightHightlightedTile;
+				}
+			} else if ((i + j) % 2 == 0) {
 				canvasCtx.fillStyle = darkTile;
-			}
-			if (selectedTile[0] == i && selectedTile[1] == 7 - j) {
-				canvasCtx.fillStyle = highlightedTile;
+			} else {
+				canvasCtx.fillStyle = lightTile;
 			}
 			canvasCtx.fillRect(i * 50, 350 - j * 50, 50, 50);
 
@@ -392,208 +402,10 @@ function drawBoard() {
 
 function makeMoveBasedOnInput(input) {
 	makeMove(board.positions[parseInt(input.slice(0, 1))][parseInt(input.slice(1, 2))], 
-		board.positions[parseInt(input.slice(2, 3))][parseInt(input.slice(3, 4))])
+		board.positions[parseInt(input.slice(2, 3))][parseInt(input.slice(3, 4))], playerMoved=false)
 }
-let moves = `4143
-6755
-3052
-4644
-5023
-1614
-2332
-5735
-1022
-1725
-5254
-2533
-5464
-1413
-2234
-5534
-6466
-3755
-6662
-3453
-2123
-1322
-3122
-5374
-6263
-7453
-2053
-7674
-5344
-3321
-3221
-3544
-6372
-5515
-6052
-1511
-0030
-1122
-3031
-5655
-5244
-2213
-4436
-4746
-0102
-1304
-0203
-2624
-6162
-0422
-2130
-7473
-7050
-7775
-5070
-7577
-7060
-0605
-6061
-7775
-6160
-7577
-6070
-0504
-7050
-7775
-5070
-0706
-7050
-2736
-7261
-7372
-6160
-7565
-5152
-0626
-3021
-3647
-6263
-6566
-6051
-2636
-2130
-3631
-5131
-2200
-3104
-0002
-0406
-4657
-0617
-0242
-3041
-4220
-4051
-2031
-5030
-6616
-1716
-3121
-1607
-5554
-4354
-2423
-0304
-2322
-0737
-2111
-3707
-2221
-3031
-1112
-0727
-2120
-2720
-1213
-3137
-1304
-2075
-5756
-7545
-5666
-4547
-0415
-5162
-1526
-6272
-2604
-5253
-0426
-3736
-6675
-7262
-2636
-6364
-7576
-6465
-7675
-4777
-3676
-7757
-7666
-5766
-7566
-4105
-6657
-0527
-5766
-7173
-6655
-7374
-5566
-2705
-6657
-7475
-5746
-7576
-4657
-7677
-5746
-6566
-4656
-0527
-5655
-7776
-5546
-7677
-4655
-6667
-5546
-6737
-4656
-3767
-5646
-6747
-4635
-4737
-3525
-3767
-2515
-6737
-1524
-3767
-2413
-6737
-1314
-3767
-1424
-6737
-2425
-3767
-2535
-6737
-3524
-3767
-2414
-6737
-1424
-3757
-2414`
+//temporary visualizer
+let moves = `4143`
 
 // visualize_moves()
 
@@ -610,9 +422,12 @@ async function visualize_moves (){
 }
 
 //input moves
-function makeMove(oldTile, newTile) {
+function makeMove(oldTile, newTile, playerMoved=true) {
 	x = newTile.position[0]
 	y = 7 - newTile.position[1]
+
+	lastMove = oldTile.position;
+	currentMove = newTile.position;
 
 	//remove en passanted pawn if pawn made capture move on empty square
 	if (newTile.piece == null && oldTile.position[0] != x) {
@@ -688,8 +503,16 @@ function makeMove(oldTile, newTile) {
 }
 
 function callEngine(x, y, newX, newY) {
+	let board_str = JSON.stringify(board.positions);
+	let castle_str = JSON.stringify([whiteCastles[0], whiteCastles[1], blackCastles[0], blackCastles[1]])
+
 	const Http = new XMLHttpRequest();
-	const url='http://localhost:8080/make_move?player_move=' + x + y + newX + newY;
+	const oldUrl = `http://localhost:8080/make_move?player_move=${x}${y}${newX}${newY}`;
+
+	const url = `http://localhost:8080/make_move_web?player_move=${x}${y}${newX}${newY}&castled=${castle_str}&board_position=${board_str}`;
+
+	console.log(url);
+	
 	Http.open("GET", url);
 	Http.send();
 
