@@ -78,7 +78,7 @@ start();
 function start() {
 	for (i of piecesSrc) {
 		let piece = new Image();
-		piece.src = `res/${i}.png`;
+		piece.src = `http://us.retrocombat.com/chess/res/${i}.png`;
 		piece.name = i;
 		piece.onload = function() {
 			piecesLoaded[this.name] = this;
@@ -502,6 +502,21 @@ function makeMove(oldTile, newTile, playerMoved=true) {
 	oldTile.piece = null;
 }
 
+var waitingForMove = false;
+async function iterCallEngine(x, y, newX, newY) {
+	console.log("engine called")
+	waitingForMove = true; //set back to false when response is received
+	while (waitingForMove) {
+		console.log("awaiting engine response");
+		try {
+		callEngine(x, y, newX, newY);
+		} catch {
+			console.log("try again");
+		}
+		await sleep(5000);
+	}
+}
+
 function callEngine(x, y, newX, newY) {
 	let board_str = JSON.stringify(board.positions);
 	let castle_str = JSON.stringify([whiteCastles[0], whiteCastles[1], blackCastles[0], blackCastles[1]])
@@ -509,7 +524,8 @@ function callEngine(x, y, newX, newY) {
 	const Http = new XMLHttpRequest();
 	const oldUrl = `http://localhost:8080/make_move?player_move=${x}${y}${newX}${newY}`;
 
-	const url = `http://localhost:8080/make_move_web?player_move=${x}${y}${newX}${newY}&castled=${castle_str}&board_position=${board_str}`;
+	let domain = "us.retrocombat.com";
+	const url = `http://${domain}:8080/make_move_web?player_move=${x}${y}${newX}${newY}&castled=${castle_str}&board_position=${board_str}`;
 
 	console.log(url);
 	
@@ -519,8 +535,11 @@ function callEngine(x, y, newX, newY) {
 	Http.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			let text = Http.responseText.slice(1,5)
-			console.log(text);
-			makeMoveBasedOnInput(text);
+			if (waitingForMove) {
+				console.log(text);
+				waitingForMove = false;
+				makeMoveBasedOnInput(text);
+			}
 		}
 	}
 }
@@ -540,10 +559,9 @@ function mouseDown(event) {
 
 		//if selectedTile is not null and piece has been clicked
 		if (selectedTile[0] != -1 && selectedTile[1] != -1 && oldTile.piece != null && moveIsLegal(oldTile.piece, [selectedTile[0], 7 - selectedTile[1]], [x, 7 - y])) {
-			callEngine(oldTile.position[0], oldTile.position[1], newTile.position[0], newTile.position[1])
 			makeMove(oldTile, newTile)
+			iterCallEngine(oldTile.position[0], oldTile.position[1], newTile.position[0], newTile.position[1])
 			selectedTile = [-1, -1];
-			
 		} else {
 			selectedTile = [x, y];
 		}

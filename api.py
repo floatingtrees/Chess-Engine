@@ -112,9 +112,9 @@ async def make_move_web(player_move: str, castled: str, board_position: str):
 				new_position[piece] = (7 - j, i)
 
 	move_pos = ((7 - int(player_move[1]), int(player_move[0])), (7 - int(player_move[3]), int(player_move[2])))
-	move = (new_position_swapped[move_pos[0]][0], move_pos[0], move_pos[1])
-	search_moves.move_position(new_position, new_position_swapped, move[1], move[2])
-	update_castling(move)
+	move = (new_position_swapped[move_pos[1]][0], move_pos[0], move_pos[1])
+	# search_moves.move_position(new_position, new_position_swapped, move[1], move[2])
+	# update_castling(move)
 	previous_moves.append(move)
 
 	start_time = timeit.default_timer()
@@ -141,8 +141,8 @@ async def make_move(player_move: str):
 
 	move_pos = ((7 - int(player_move[1]), int(player_move[0])), (7 - int(player_move[3]), int(player_move[2])))
 	move = (position_swapped[move_pos[0]][0], move_pos[0], move_pos[1])
-	search_moves.move_position(position, position_swapped, move[1], move[2])
-	update_castling(move)
+	# search_moves.move_position(position, position_swapped, move[1], move[2])
+	# update_castling(move)
 	previous_moves.append(move)
 
 	start_time = timeit.default_timer()
@@ -164,4 +164,4 @@ async def make_move(player_move: str):
 
 	return f"{move[1][1]}{7 - move[1][0]}{move[2][1]}{7 - move[2][0]}"
 
-uvicorn.run(app, port=8080, host="0.0.0.0", log_level="critical")
+uvicorn.run(app, port=8080, host="0.0.0.0")#, log_level="critical")
