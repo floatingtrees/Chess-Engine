@@ -10,4 +10,6 @@ making an [evaluation function](https://en.wikipedia.org/wiki/Evaluation_functio
 [Principal variation searches](https://en.wikipedia.org/wiki/Principal_variation_search) (use neural networks to generate the initial branch), 
 and [NNUEs](https://github.com/glinscott/nnue-pytorch/blob/master/docs/nnue.md).
 
+NNUE inputs: 32{total pieces} * (64{king position} + 64{self king position} + 12{piece type} + 64{piece position}) + 4{castling} + 16{en_passant}, concat order: side_to_move + (side to not move + extra positional information)
+
 Team: Jonathan Zhou, Zack Sima, Eric Brewster
