@@ -13,6 +13,7 @@ const highlightedTile = "#F2B64E";
 
 var lastMove = [-1, -1];
 var currentMove = [-1, -1];
+var moveNum = 0;
 
 class Tile {
 	constructor(position, piece) {
@@ -532,16 +533,18 @@ function callEngine(x, y, newX, newY) {
 	Http.open("GET", url);
 	Http.send();
 
-	Http.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-			let text = Http.responseText.slice(1,5)
-			if (waitingForMove) {
-				console.log(text);
-				waitingForMove = false;
-				makeMoveBasedOnInput(text);
+	Http.onreadystatechange = (function(turnCount) {
+		return function() {
+			if (this.readyState == 4 && this.status == 200) {
+				let text = Http.responseText.slice(1,5)
+				if (waitingForMove && turnCount == moveNum) {
+					console.log(text);
+					waitingForMove = false;
+					makeMoveBasedOnInput(text);
+				}
 			}
 		}
-	}
+	})(moveNum);
 }
 
 //controls
@@ -558,11 +561,12 @@ function mouseDown(event) {
 		}
 
 		//if selectedTile is not null and piece has been clicked
-		if (selectedTile[0] != -1 && selectedTile[1] != -1 && oldTile.piece != null && moveIsLegal(oldTile.piece, [selectedTile[0], 7 - selectedTile[1]], [x, 7 - y])) {
+		if (!waitingForMove && selectedTile[0] != -1 && selectedTile[1] != -1 && oldTile.piece != null && moveIsLegal(oldTile.piece, [selectedTile[0], 7 - selectedTile[1]], [x, 7 - y])) {
+			moveNum++;
 			makeMove(oldTile, newTile)
 			iterCallEngine(oldTile.position[0], oldTile.position[1], newTile.position[0], newTile.position[1])
 			selectedTile = [-1, -1];
-		} else {
+		} else if (board.positions[x][7 - y].piece != null && board.positions[x][7 - y].piece[0] == "w") {
 			selectedTile = [x, y];
 		}
 	} else {
