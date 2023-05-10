@@ -10,16 +10,16 @@ import primitive_evaluate
 
 #if transform piece the moved piece changes into the new transform_piece
 def move_position(position, position_swapped, initial, final, transform_piece=None, captured_piece=None, french_captured=None, depth=-1):
-	french_capture = None
-	french_captured_position = None
+	# french_capture = None
+	# french_captured_position = None
 
-	# print(f"initial:{position}")
-	# print(f"{initial} and {final}, depth={depth}")
+	# print(f"position: {position}")
+	# print(f"movements {initial} and {final}, depth={depth}")
 
 	#fancy-baguette-move
 	if position_swapped.get(final) == None and initial[1] != final[1] and ((position_swapped[initial][0] == "P" and initial[0] == 3 and final[0] == 2) or (position_swapped[initial][0] == "p" and initial[0] == 4 and final[0] == 5)):
-		french_capture = position_swapped[(initial[0], final[1])]
-		french_captured_position = (initial[0], final[1])
+		# french_capture = position_swapped[(initial[0], final[1])]
+		# french_captured_position = (initial[0], final[1])
 
 		# raise Exception(f"fancy french time! {(french_capture, french_captured_position)}")
 		
@@ -115,7 +115,7 @@ def move_position(position, position_swapped, initial, final, transform_piece=No
 		position_swapped[final] = piece
 		del position_swapped[initial]
 	
-	return (french_capture, french_captured_position)
+	# return (french_capture, french_captured_position)
 	# print(f"final: {position}")
 
 #if old_piece is not None, the initial position's old_piece is put back

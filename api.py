@@ -43,7 +43,6 @@ def update_castling(move):
 	elif move[0][0] == "R" and move[1] == (7, 0):
 		can_castle[1] = False
 	elif move[0][0] == "O" or move[0][0] == "K":
-		print("castled!")
 		can_castle[0] = False
 		can_castle[1] = False
 
@@ -115,6 +114,7 @@ async def make_move_web(player_move: str, castled: str, board_position: str):
 	move_pos = ((7 - int(player_move[1]), int(player_move[0])), (7 - int(player_move[3]), int(player_move[2])))
 	move = (new_position_swapped[move_pos[0]][0], move_pos[0], move_pos[1])
 	search_moves.move_position(new_position, new_position_swapped, move[1], move[2])
+	update_castling(move)
 	previous_moves.append(move)
 
 	start_time = timeit.default_timer()
@@ -122,7 +122,7 @@ async def make_move_web(player_move: str, castled: str, board_position: str):
 
 	move = search_moves.alphabeta(new_position, new_position_swapped, -99999, 99999, white=False, max_depth=depth, previous_moves=previous_moves, can_castle=can_castle)
 	
-	search_moves.move_position(position, position_swapped, move[1], move[2])
+	search_moves.move_position(new_position, new_position_swapped, move[1], move[2])
 	update_castling(move)
 	
 	print(f"returned {move[1][1]}{7 - move[1][0]}{move[2][1]}{7 - move[2][0]}")
@@ -164,4 +164,4 @@ async def make_move(player_move: str):
 
 	return f"{move[1][1]}{7 - move[1][0]}{move[2][1]}{7 - move[2][0]}"
 
-uvicorn.run(app, port=8080, host="0.0.0.0")
+uvicorn.run(app, port=8080, host="0.0.0.0", log_level="critical")

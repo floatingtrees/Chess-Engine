@@ -481,13 +481,13 @@ function makeMove(oldTile, newTile, playerMoved=true) {
 	}
 	//remove castling
 	if (newTile.piece == "wrook" && oldTile.position[0] == 0 && oldTile.position[1] == 0) {
-		whiteCastles[0] = false;
+		whiteCastles[1] = false;
 	} else if (newTile.piece == "wrook" && oldTile.position[0] == 7 && oldTile.position[1] == 0) {
-		whiteCastles[1] = false;
-	} else if (newTile.piece == "brook" && oldTile.position[0] == 0 && oldTile.position[1] == 7) {
 		whiteCastles[0] = false;
+	} else if (newTile.piece == "brook" && oldTile.position[0] == 0 && oldTile.position[1] == 7) {
+		blackCastles[1] = false;
 	} else if (newTile.piece == "brook" && oldTile.position[0] == 7 && oldTile.position[1] == 7) {
-		whiteCastles[1] = false;
+		blackCastles[0] = false;
 	}
 
 	//update en passant if applicable otherwise set to false
