@@ -161,7 +161,7 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 			#pre-promotion pawn
 			old_other_piece = position_swapped.get(move[1])
 
-			#king taken, value is maximum
+			#NOTE: deprecated; king taken, value is maximum
 			if old_piece != None and "k" in old_piece:
 				#print(f"black king taken, {old_piece}")
 				val = 95000 - depth
@@ -218,8 +218,12 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 				return value_list
 			return best_move
 		elif best_move == None:
-			#stalemated
-			return 0
+			if len(legal_moves.pins_and_checks_search(position, position_swapped, True, position["K0"][0], position["K0"][1])[1]) == 0:
+				#stalemated
+				return 0
+			else:
+				#checkmated
+				return -99999
 		return val
 	else:
 		val = 99999
@@ -240,7 +244,7 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 			if best_move == None:
 				best_move = move
 
-			#king taken, value is maximum
+			#NOTE: deprecated; king taken, value is maximum
 			if old_piece != None and "K" in old_piece:
 				#print(f"white king taken, {old_piece}")
 				val = -95000 + depth
@@ -295,8 +299,15 @@ def alphabeta(position, position_swapped, alpha, beta, white=True, depth=0, max_
 				return value_list
 			return best_move
 		elif best_move == None:
-			#stalemated
-			return 0
+			if len(legal_moves.pins_and_checks_search(position, position_swapped, False, position["k0"][0], position["k0"][1])[1]) == 0:
+				#stalemated
+				return 0
+			else:
+				#checkmated
+				return 99999
+			
+			
+			
 		return val
 
 #temporary move search
